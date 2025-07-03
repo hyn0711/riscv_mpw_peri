@@ -17,6 +17,15 @@ module output_buffer (
     logic [7:0]     write_ptr;
     logic [7:0]     read_ptr;
 
+    // dump //
+    logic [2047:0] dump_mem;
+    always_comb begin
+        for (int i = 0; i < 256; i++) begin
+            dump_mem[i*8 +: 8] = mem[i];
+        end
+    end
+    /////////
+
     always_ff @ (posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
             for (int i = 0; i < 256; i++) begin

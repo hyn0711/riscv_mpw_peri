@@ -20,7 +20,7 @@ module eFLASH_driver (
     input logic [1:0]           input_i[0:255],  
     //input logic [511:0]         input_flat_i,       // for testbench     
 
-    input logic [3:0]           read_cnt_i,
+    input logic [3:0]           exec_cnt_i,
 
     // HVS signal
     output logic [1:0]          MODE_o,
@@ -201,7 +201,7 @@ module eFLASH_driver (
                     vpass_en[i] = 1'b0;
                 end
             end
-            if (read_cnt_i == 4'd8 || read_cnt_i == 4'd7 || read_cnt_i == 4'd6) begin
+            if (exec_cnt_i == 4'd8 || exec_cnt_i == 4'd7 || exec_cnt_i == 4'd6) begin
                 // eFLASH
                 dumh = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                 duml = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
@@ -222,7 +222,7 @@ module eFLASH_driver (
                         bselb[i] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd5) begin
+            end else if (exec_cnt_i == 4'd5) begin
                 // eFLASH
                 csl = '0;
                 csel = '0;
@@ -250,7 +250,7 @@ module eFLASH_driver (
                         bselb[j] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd4 || read_cnt_i == 4'd3) begin
+            end else if (exec_cnt_i == 4'd4 || exec_cnt_i == 4'd3) begin
                 // eFLASH
                 dumh = '0;
                 duml = '0;
@@ -271,7 +271,7 @@ module eFLASH_driver (
                         bselb[j] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd2) begin
+            end else if (exec_cnt_i == 4'd2) begin
                 // eFLASH
                 dumh = '0;
                 duml = '0;
@@ -292,7 +292,7 @@ module eFLASH_driver (
                         cselb[i] = 1'b1;
                     end 
                 end
-            end else if (read_cnt_i == 4'd1 || read_cnt_i == 4'd0) begin
+            end else if (exec_cnt_i == 4'd1 || exec_cnt_i == 4'd0) begin
                 // eFLASH
                 dumh = '0;
                 duml = '0;
@@ -329,7 +329,7 @@ module eFLASH_driver (
                 qdac = 1'b1;
             end
 
-            if (read_cnt_i == 4'd0) begin
+            if (exec_cnt_i == 4'd0) begin
                 out_buf_write = 1'b1;   // output buffer write signal
             end else begin
                 out_buf_write = 1'b0;
@@ -351,7 +351,7 @@ module eFLASH_driver (
                 end
             end
             // eFLASH
-            if (read_cnt_i == 4'd11 || read_cnt_i == 4'd10 || read_cnt_i == 4'd9) begin
+            if (exec_cnt_i == 4'd11 || exec_cnt_i == 4'd10 || exec_cnt_i == 4'd9) begin
                 dumh = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                 duml = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                 csl = '0;
@@ -371,7 +371,7 @@ module eFLASH_driver (
                         bselb[i] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd8 || read_cnt_i == 4'd7 || read_cnt_i == 4'd6) begin
+            end else if (exec_cnt_i == 4'd8 || exec_cnt_i == 4'd7 || exec_cnt_i == 4'd6) begin
                 csl = '0;
                 csel = '0;
                 cselb = 8'hFF;
@@ -385,7 +385,7 @@ module eFLASH_driver (
                         dumh[i] = '0;
                         duml[i] = '0;
                     end else if (input_i[i] == 2'b01) begin
-                        if (read_cnt_i == 4'd8) begin
+                        if (exec_cnt_i == 4'd8) begin
                             dumh[i] = 1'b1;
                             duml[i] = 1'b1;
                         end else begin
@@ -393,7 +393,7 @@ module eFLASH_driver (
                             duml[i] = '0;
                         end
                     end else if (input_i[i] == 2'b10) begin
-                        if (read_cnt_i == 4'd8 || read_cnt_i == 4'd7) begin
+                        if (exec_cnt_i == 4'd8 || exec_cnt_i == 4'd7) begin
                             dumh[i] = 1'b1;
                             duml[i] = 1'b1;
                         end else begin
@@ -417,7 +417,7 @@ module eFLASH_driver (
                         bselb[j] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd5) begin
+            end else if (exec_cnt_i == 4'd5) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -430,7 +430,7 @@ module eFLASH_driver (
                 adc_en = '0;
                 dff = '0;
                 qdac = 1'b1;
-            end else if (read_cnt_i == 4'd4) begin
+            end else if (exec_cnt_i == 4'd4) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -443,7 +443,7 @@ module eFLASH_driver (
                 adc_en = 1'b1;
                 dff = '0;
                 qdac = 1'b1;
-            end else if (read_cnt_i == 4'd3) begin
+            end else if (exec_cnt_i == 4'd3) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -456,7 +456,7 @@ module eFLASH_driver (
                 adc_en = 1'b1;
                 dff = 1'b1;
                 qdac = '0;
-            end else if (read_cnt_i == 4'd2) begin
+            end else if (exec_cnt_i == 4'd2) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -469,7 +469,7 @@ module eFLASH_driver (
                 adc_en = '0;
                 dff = '0;
                 qdac = '0;
-            end else if (read_cnt_i == 4'd1 || read_cnt_i == 4'd0) begin
+            end else if (exec_cnt_i == 4'd1 || exec_cnt_i == 4'd0) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -498,7 +498,7 @@ module eFLASH_driver (
                 qdac = 1'b1;
             end
 
-            if (read_cnt_i == 4'd3 || read_cnt_i == 4'd0) begin
+            if (exec_cnt_i == 4'd3 || exec_cnt_i == 4'd0) begin
                 out_buf_write = 1'b1;   // output buffer write signal
             end else begin
                 out_buf_write = 1'b0;
@@ -518,7 +518,7 @@ module eFLASH_driver (
                 end
             end
             // eFLASH
-            if (read_cnt_i == 4'd8 || read_cnt_i == 4'd7 || read_cnt_i == 4'd6) begin
+            if (exec_cnt_i == 4'd8 || exec_cnt_i == 4'd7 || exec_cnt_i == 4'd6) begin
                 dumh = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                 duml = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                 csl = '0;
@@ -538,7 +538,7 @@ module eFLASH_driver (
                         bselb[i] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd5 || read_cnt_i == 4'd4 || read_cnt_i == 4'd3) begin
+            end else if (exec_cnt_i == 4'd5 || exec_cnt_i == 4'd4 || exec_cnt_i == 4'd3) begin
                 csl = '0;
                 csel = '0;
                 cselb = 8'hFF;
@@ -557,7 +557,7 @@ module eFLASH_driver (
                         dumh[8*i + row_c] = '0;
                         duml[8*i + row_c] = '0;
                     end else if (input_i[i] == 2'b01) begin
-                        if (read_cnt_i == 4'd5) begin
+                        if (exec_cnt_i == 4'd5) begin
                             dumh[8*i + row_c] = 1'b1;
                             duml[8*i + row_c] = 1'b1;
                         end else begin
@@ -565,7 +565,7 @@ module eFLASH_driver (
                             duml[8*i + row_c] = '0;
                         end
                     end else if (input_i[i] == 2'b10) begin
-                        if (read_cnt_i == 4'd5 || read_cnt_i == 4'd4) begin
+                        if (exec_cnt_i == 4'd5 || exec_cnt_i == 4'd4) begin
                             dumh[8*i + row_c] = 1'b1;
                             duml[8*i + row_c] = 1'b1;
                         end else begin
@@ -589,7 +589,7 @@ module eFLASH_driver (
                         bselb[j] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd2) begin
+            end else if (exec_cnt_i == 4'd2) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -609,7 +609,7 @@ module eFLASH_driver (
                         cselb[i] = 1'b1;
                     end
                 end
-            end else if (read_cnt_i == 4'd1 || read_cnt_i == 4'd0) begin
+            end else if (exec_cnt_i == 4'd1 || exec_cnt_i == 4'd0) begin
                 dumh = '0;
                 duml = '0;
                 csl = '0;
@@ -645,7 +645,7 @@ module eFLASH_driver (
                 qdac = 1'b1;
             end
 
-            if (read_cnt_i == 4'd0) begin
+            if (exec_cnt_i == 4'd0) begin
                 out_buf_write = 1'b1;   // output buffer write signal
             end else begin
                 out_buf_write = 1'b0;

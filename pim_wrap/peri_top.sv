@@ -57,7 +57,7 @@ module peri_top (
 
     .data_o(data_o),
 
-    // dFLASH driver
+    // eFLASH driver
     .erase_en_o(erase_en),
     .program_en_o(program_en),
     .read_en_o(read_en),
@@ -107,7 +107,7 @@ module peri_top (
     .input_i(input_data_buf_driver),  
     //.input_flat_i(input_flat_buf_driver),       // for testbench     
 
-    .read_cnt_i(exec_cnt),
+    .exec_cnt_i(exec_cnt),
 
     // HVS signal
     .MODE_o(MODE_o),
@@ -136,12 +136,12 @@ module peri_top (
     .clk_i(clk_i),
     .rst_ni(rst_ni),
 
-    .data_i(input_data_contr_buf),
+    .input_data_i(input_data_contr_buf),
     .data_cnt_i(data_rx_cnt),
 
-    .buf_write_i(in_buf_write),
-
-    .buf_read_i(in_buf_read),     // mode execution
+    .in_buf_write_i(in_buf_write),
+    .in_buf_read_i(in_buf_read),     // mode execution
+    
     .parallel_read_i(parallel_en),
     .rowbyrow_read_i(rbr_en),
 
