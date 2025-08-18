@@ -7,6 +7,7 @@ module accum_buffer (
     input logic [31:0]      data_i,
 
     input logic             read_en_i,
+    input logic [31:0]      zero_point_i,
 
     output logic [31:0]     data_o
 );
@@ -24,7 +25,7 @@ module accum_buffer (
                 data_o <= '0;
             end else if (read_en_i) begin
                 mem <= '0;
-                data_o <= mem;
+                data_o <= mem + zero_point_i;
             end else begin
                 mem <= mem;
                 data_o <= '0;

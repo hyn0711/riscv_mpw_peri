@@ -1,8 +1,22 @@
 `timescale 1ns/10ps
 
-module tb_mapping_group_top;
+module tb_mapping_group_top();
 
     parameter CLK_PERIOD = 10;
+
+    initial begin
+        `ifdef sdf_gate
+			$sdf_annotate("./tb_mapping_group_top.sdf_PT", ppc);
+		`endif
+		
+		`ifdef sdf_layout_wst
+			$sdf_annotate("./tb_mapping_group_top.sdf_PT_wst", ppc);
+		`endif
+		`ifdef sdf_layout_bst
+			$sdf_annotate("./tb_mapping_group_top.sdf_PT_bst", ppc);
+		`endif
+	end
+
 
     reg clk_i;
     reg rst_ni;
@@ -13,16 +27,21 @@ module tb_mapping_group_top;
     reg buf_write_en_2_i;
     reg buf_read_en_i;
 
-    reg mode_i;
+    reg shift_counter_en_i;
 
-    reg [1:0] shift_count_i;
+    reg mode_i;
 
     reg accum_buf_write_i;
     reg accum_buf_read_i;
 
+    reg zero_point_en_i;
+    reg [31:0] zero_point_i;
+
+    reg load_en_i;
+
     wire [31:0] mapping_group_o;
 
-    mapping_group_top top(
+    mapping_group_top ppc(
         .clk_i(clk_i),
         .rst_ni(rst_ni),
 
@@ -32,12 +51,17 @@ module tb_mapping_group_top;
         .buf_write_en_2_i(buf_write_en_2_i),
         .buf_read_en_i(buf_read_en_i),
 
+        .shift_counter_en_i(shift_counter_en_i),
+
         .mode_i(mode_i),
 
-        .shift_count_i(shift_count_i),
-
         .accum_buf_write_i(accum_buf_write_i),
-        .accum_buf_read_i(accum_buf_read_i),
+        //.accum_buf_read_i(accum_buf_read_i),
+
+        .zero_point_en_i(zero_point_en_i),
+        .zero_point_i(zero_point_i),
+
+        .load_en_i(load_en_i),
 
         .mapping_group_o(mapping_group_o)
 );
@@ -56,10 +80,13 @@ module tb_mapping_group_top;
         buf_write_en_1_i = '0;
         buf_write_en_2_i = '0;
         buf_read_en_i = '0;
+        shift_counter_en_i = '0;
         mode_i = '0;
-        shift_count_i = '0;
         accum_buf_write_i = '0;
         accum_buf_read_i = '0;
+        zero_point_en_i = '0;
+        zero_point_i = '0;
+        load_en_i = '0;
     endtask
 
     initial begin
@@ -72,106 +99,147 @@ module tb_mapping_group_top;
 
         // Test rbr mode ----------------------------
         // shift_sum_output = 55, shift_count_output = 55
-        @(posedge clk_i); mode_i = 1'b0;
-                          output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
+        @(posedge clk_i); zero_point_en_i = 1'b1;
+                          zero_point_i = 32'd10;
+        @(posedge clk_i); init_signals();
+        
+        repeat(10) @(posedge clk_i); mode_i = 1'b0;
+                                     output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
         @(posedge clk_i); buf_write_en_1_i = 1'b1;
         @(posedge clk_i); buf_write_en_1_i = '0;
                           buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b00;
         @(posedge clk_i); accum_buf_write_i = 1'b1;
+                          shift_counter_en_i = 1'b1;
+                          buf_read_en_i = '0;
         @(posedge clk_i); init_signals();
 
-        // shift_sum_output = 55, shift_count_output = 154
-        repeat(5) @(posedge clk_i); mode_i = 1'b0;
-                                    output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
+        repeat(10) @(posedge clk_i); mode_i = 1'b0;
+                                     output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
         @(posedge clk_i); buf_write_en_1_i = 1'b1;
         @(posedge clk_i); buf_write_en_1_i = '0;
                           buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b01;
         @(posedge clk_i); accum_buf_write_i = 1'b1;
+                          shift_counter_en_i = 1'b1;
+                          buf_read_en_i = '0;
         @(posedge clk_i); init_signals();
 
-        // shift_sum_output = AA, shift_count_output = AA0
-        repeat(5) @(posedge clk_i); mode_i = 1'b0;
-                                    output_i = {8'b11111100, 8'b11111100, 8'b11111100, 8'b11111100};
+        repeat(10) @(posedge clk_i); mode_i = 1'b0;
+                                     output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
         @(posedge clk_i); buf_write_en_1_i = 1'b1;
         @(posedge clk_i); buf_write_en_1_i = '0;
                           buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b10;
         @(posedge clk_i); accum_buf_write_i = 1'b1;
+                          shift_counter_en_i = 1'b1;
+                          buf_read_en_i = '0;
         @(posedge clk_i); init_signals();
 
-        // shift_sum_output = AA, shift_count_output = 2A80
-        repeat(5) @(posedge clk_i); mode_i = 1'b0;
-                                    output_i = {8'b11111100, 8'b11111100, 8'b11111100, 8'b11111100};
+        repeat(10) @(posedge clk_i); mode_i = 1'b0;
+                                     output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
         @(posedge clk_i); buf_write_en_1_i = 1'b1;
         @(posedge clk_i); buf_write_en_1_i = '0;
                           buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b11;
         @(posedge clk_i); accum_buf_write_i = 1'b1;
+                          shift_counter_en_i = 1'b1;
+                          buf_read_en_i = '0;
         @(posedge clk_i); init_signals();
 
-        // Read the mapping group output to zero points
-        repeat(2) @(posedge clk_i); accum_buf_read_i = 1'b1;
-        @(posedge clk_i); init_signals();
-
-
-
-        // Test paralle mode ----------------------------
-        @(posedge clk_i); mode_i = 1'b1;
-                          output_i = {8'b10000000, 8'b10000000, 8'b10000000, 8'b10000000};
-        @(posedge clk_i); buf_write_en_1_i = 1'b1;
-        @(posedge clk_i); buf_write_en_1_i = '0;
-        @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
-        @(posedge clk_i); buf_write_en_2_i = 1'b1;
-        @(posedge clk_i); buf_write_en_2_i = '0;
-                          buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b00;
-        @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // Load mode
+        repeat(2) @(posedge clk_i); load_en_i = 1'b1;
+                        
         @(posedge clk_i); init_signals();
 
 
-        repeat(6) @(posedge clk_i); mode_i = 1'b1;
-                          output_i = {8'b11000000, 8'b11000000, 8'b11000000, 8'b11000000};
-        @(posedge clk_i); buf_write_en_1_i = 1'b1;
-        @(posedge clk_i); buf_write_en_1_i = '0;
-        @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
-        @(posedge clk_i); buf_write_en_2_i = 1'b1;
-        @(posedge clk_i); buf_write_en_2_i = '0;
-                          buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b01;
-        @(posedge clk_i); accum_buf_write_i = 1'b1;
-        @(posedge clk_i); init_signals();
+        // // shift_sum_output = 55, shift_count_output = 154
+        // repeat(5) @(posedge clk_i); mode_i = 1'b0;
+        //                             output_i = {8'b11111110, 8'b11111110, 8'b11111110, 8'b11111110};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b01;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
+
+        // // shift_sum_output = AA, shift_count_output = AA0
+        // repeat(5) @(posedge clk_i); mode_i = 1'b0;
+        //                             output_i = {8'b11111100, 8'b11111100, 8'b11111100, 8'b11111100};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b10;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
+
+        // // shift_sum_output = AA, shift_count_output = 2A80
+        // repeat(5) @(posedge clk_i); mode_i = 1'b0;
+        //                             output_i = {8'b11111100, 8'b11111100, 8'b11111100, 8'b11111100};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b11;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
+
+        // // Read the mapping group output to zero points
+        // repeat(2) @(posedge clk_i); accum_buf_read_i = 1'b1;
+        // @(posedge clk_i); init_signals();
 
 
-        repeat(6) @(posedge clk_i); mode_i = 1'b1;
-                          output_i = {8'b11100000, 8'b11100000, 8'b11100000, 8'b11100000};
-        @(posedge clk_i); buf_write_en_1_i = 1'b1;
-        @(posedge clk_i); buf_write_en_1_i = '0;
-        @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
-        @(posedge clk_i); buf_write_en_2_i = 1'b1;
-        @(posedge clk_i); buf_write_en_2_i = '0;
-                          buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b10;
-        @(posedge clk_i); accum_buf_write_i = 1'b1;
-        @(posedge clk_i); init_signals();
+
+        // // Test paralle mode ----------------------------
+        // @(posedge clk_i); mode_i = 1'b1;
+        //                   output_i = {8'b10000000, 8'b10000000, 8'b10000000, 8'b10000000};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        // @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
+        // @(posedge clk_i); buf_write_en_2_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_2_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b00;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
 
 
-        repeat(6) @(posedge clk_i); mode_i = 1'b1;
-                          output_i = {8'b11110000, 8'b11110000, 8'b11110000, 8'b11110000};
-        @(posedge clk_i); buf_write_en_1_i = 1'b1;
-        @(posedge clk_i); buf_write_en_1_i = '0;
-        @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
-        @(posedge clk_i); buf_write_en_2_i = 1'b1;
-        @(posedge clk_i); buf_write_en_2_i = '0;
-                          buf_read_en_i = 1'b1;
-                          shift_count_i = 2'b11;
-        @(posedge clk_i); accum_buf_write_i = 1'b1;
-        @(posedge clk_i); init_signals();
+        // repeat(6) @(posedge clk_i); mode_i = 1'b1;
+        //                   output_i = {8'b11000000, 8'b11000000, 8'b11000000, 8'b11000000};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        // @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
+        // @(posedge clk_i); buf_write_en_2_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_2_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b01;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
 
 
-        repeat(2) @(posedge clk_i); accum_buf_read_i = 1'b1;
-        @(posedge clk_i); init_signals();
+        // repeat(6) @(posedge clk_i); mode_i = 1'b1;
+        //                   output_i = {8'b11100000, 8'b11100000, 8'b11100000, 8'b11100000};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        // @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
+        // @(posedge clk_i); buf_write_en_2_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_2_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b10;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
+
+
+        // repeat(6) @(posedge clk_i); mode_i = 1'b1;
+        //                   output_i = {8'b11110000, 8'b11110000, 8'b11110000, 8'b11110000};
+        // @(posedge clk_i); buf_write_en_1_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_1_i = '0;
+        // @(posedge clk_i); output_i = {8'b11111000, 8'b11111000, 8'b11111000, 8'b11111000};
+        // @(posedge clk_i); buf_write_en_2_i = 1'b1;
+        // @(posedge clk_i); buf_write_en_2_i = '0;
+        //                   buf_read_en_i = 1'b1;
+        //                   shift_count_i = 2'b11;
+        // @(posedge clk_i); accum_buf_write_i = 1'b1;
+        // @(posedge clk_i); init_signals();
+
+
+        // repeat(2) @(posedge clk_i); accum_buf_read_i = 1'b1;
+        // @(posedge clk_i); init_signals();
 
                     
         repeat(20) @(posedge clk_i); $finish;

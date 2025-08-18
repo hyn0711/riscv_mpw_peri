@@ -1,7 +1,10 @@
 
 // Mapping group module
 
-module mapping_group_shift (
+module mapping_group_shift #(
+    parameter PIM_PARALLEL = 3'b100,
+    parameter PIM_RBR      = 3'b101
+    ) (
     input logic             clk_i,
     input logic             rst_ni,
 
@@ -12,10 +15,9 @@ module mapping_group_shift (
     input logic             buf_write_en_2_i,
     input logic             buf_read_en_i,
 
-    input logic             mode_i,
+    input logic             shift_counter_en_i,
 
-    // Counter shifter data
-    input logic [1:0]       shift_count_i,
+    input logic             mode_i,
 
     output logic [31:0]     output_o
 );
@@ -113,41 +115,42 @@ module mapping_group_shift (
     // 2 : 4
     // 3 : 6
 
+    // Counter
+    // If the buffer read signal is on, counter + 1
+
+    logic [1:0] shift_counter;
+
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            shift_counter <= '0;
+        end else begin
+            if (shift_counter_en_i) begin
+                shift_counter <= shift_counter + 2'd1;
+            end else begin
+                shift_counter <= shift_counter;
+            end
+        end
+    end
+
     always_comb begin
-        shift_count_output = '0;
-        
-            case (shift_count_i)
+        shift_count_output = '0;      
+            case (shift_counter)
                 2'b00: shift_count_output = {6'b0, shift_sum_output};
                 2'b01: shift_count_output = {4'b0, shift_sum_output, 2'b0};
                 2'b10: shift_count_output = {2'b0, shift_sum_output, 4'b0};
                 2'b11: shift_count_output = {shift_sum_output, 6'b0};
                 default: shift_count_output = '0;
-            endcase
-        
+            endcase      
     end
 
     assign output_o = shift_count_output;
 
-    // logic [31:0] accum_buf;
 
-    // always_ff @(posedge clk_i or negedge rst_ni) begin
-    //     if (!rst_ni) begin
-    //         accum_buf <= '0;
-    //     end else begin
-    //         if (buf_read_en_i) begin
-    //             accum_buf <= accum_buf + shift_count_output;
-    //         end else begin
-    //             accum_buf <= accum_buf;
-    //         end
-    //     end
-    // end
-
-    // assign output_o = accum_buf;
 
 endmodule
 
 
-// Buffer to store the data after count shifting //
+
 
 
     
