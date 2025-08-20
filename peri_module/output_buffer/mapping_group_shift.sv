@@ -17,7 +17,7 @@ module mapping_group_shift #(
 
     input logic             shift_counter_en_i,
 
-    input logic             mode_i,
+    input logic [2:0]       pim_mode_i,
 
     output logic [31:0]     output_o
 );
@@ -40,7 +40,7 @@ module mapping_group_shift #(
         .clk_i(clk_i),
         .rst_ni(rst_ni),
         
-        .mode_i(mode_i),
+        .pim_mode_i(pim_mode_i),
 
         .buf_write_en_1_i(buf_write_en_1_i),
         .buf_write_en_2_i(buf_write_en_2_i),
@@ -56,7 +56,7 @@ module mapping_group_shift #(
         .clk_i(clk_i),
         .rst_ni(rst_ni),
         
-        .mode_i(mode_i),
+        .pim_mode_i(pim_mode_i),
 
         .buf_write_en_1_i(buf_write_en_1_i),
         .buf_write_en_2_i(buf_write_en_2_i),
@@ -72,7 +72,7 @@ module mapping_group_shift #(
         .clk_i(clk_i),
         .rst_ni(rst_ni),
         
-        .mode_i(mode_i),
+        .pim_mode_i(pim_mode_i),
 
         .buf_write_en_1_i(buf_write_en_1_i),
         .buf_write_en_2_i(buf_write_en_2_i),
@@ -88,7 +88,7 @@ module mapping_group_shift #(
         .clk_i(clk_i),
         .rst_ni(rst_ni),
         
-        .mode_i(mode_i),
+        .pim_mode_i(pim_mode_i),
 
         .buf_write_en_1_i(buf_write_en_1_i),
         .buf_write_en_2_i(buf_write_en_2_i),

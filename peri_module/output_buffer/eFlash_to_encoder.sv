@@ -8,7 +8,7 @@ module eFlash_to_encoder (
     
     // Mode data (rbr or parallel)
     // 0: rbr, 1: parallel
-    input logic         mode_i,
+    input logic [2:0]   pim_mode_i,
 
     // Buffer write, read signal
     input logic         buf_write_en_1_i,
@@ -46,7 +46,7 @@ module eFlash_to_encoder (
         .clk_i(clk_i),
         .rst_ni(rst_ni),
 
-        .mode_i(mode_i),
+        .pim_mode_i(pim_mode_i),
 
         .buf_output_1_i(buf_output_1),
         .buf_output_2_i(buf_output_2),
@@ -64,7 +64,7 @@ module encoder (
     input logic         clk_i,
     input logic         rst_ni,
 
-    input logic         mode_i,
+    input logic [2:0]   pim_mode_i,
 
     // Output data from buffer
     input logic [7:0]   buf_output_1_i,
@@ -82,19 +82,23 @@ module encoder (
 
     logic [6:0]     encoder_output;
 
-    // mode_i = 0: rbr mode
-    // mode_i = 1: parallel mode
+    // pim_mode_i = 3'b110: rbr mode
+    // pim_mode_i = 3'b101: parallel mode
     
     // Demux 
     always_comb begin
         parallel_output_1 = '0;
         parallel_output_2 = '0;
         rbr_output = '0;
-        if (mode_i) begin
+        if (pim_mode_i == 3'b101) begin
             parallel_output_1 = buf_output_1_i;
             parallel_output_2 = buf_output_2_i;
-        end else begin
+        end else if (pim_mode_i == 3'b110) begin
             rbr_output = buf_output_1_i;
+        end else begin
+            parallel_output_1 = '0;
+            parallel_output_2 = '0;
+            rbr_output = '0;
         end
     end
 
@@ -117,7 +121,16 @@ module encoder (
         .parallel_enc_output_o(parallel_enc_output)
     );
 
-    assign encoder_output = mode_i ? parallel_enc_output : rbr_enc_output;
+    always_comb begin
+        if (pim_mode_i == 3'b101) begin
+            encoder_output = parallel_enc_output;
+        end else if (pim_mode_i == 3'b110) begin
+            encoder_output = rbr_enc_output;
+        end else begin
+            encoder_output = '0;
+        end 
+    end
+    //assign encoder_output = mode_i ? parallel_enc_output : rbr_enc_output;
     assign encoder_output_o = buf_read_en_i ? encoder_output : '0;
 
 endmodule
@@ -278,36 +291,3 @@ module buffer (
 endmodule
 
 
-// Demultiplexer //
-// If the mode is parallel mode, store the output in the buffer
-// If the mode is rbr mode, encoding the output
-
-/*
-module demux (
-    input logic         clk_i,
-    input logic         rst_ni,
-
-    input logic         mode_i,
-
-    input logic [7:0]   output_i,
-
-    output logic [7:0]  output_rbr_o,
-    output logic [7:0]  output_parallel_o
-);
-
-    // mode_i = 0: rbr mode
-    // mode_i = 1: parallel mode
-
-    always_comb begin
-        output_rbr_o = '0;
-        output_parallel_o = '0;
-        case (mode_i)
-            1'b0: output_rbr_o = output_i;
-            1'b1: output_parallel_o = output_i;
-            default: output_rbr_o = '0;
-                     output_parallel_o = '0;
-        endcase
-    end
-
-endmodule
-*/

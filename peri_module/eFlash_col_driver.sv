@@ -11,11 +11,7 @@ module eFlash_col_driver (
     input logic             rst_ni,
 
     // Buffer input
-    input logic [31:0]      input_data_i,
-    input logic [3:0]       data_cnt_i,
-
-    input logic             in_buf_write_i,
-    input logic             in_buf_read_i,     
+    input logic [1:0]       input_data_i [0:255],  
 
     // eFlash signal control
     input logic             pim_en_i,
@@ -34,9 +30,10 @@ module eFlash_col_driver (
     localparam PIM_ERASE = 3'b001;
     localparam PIM_PROGRAM = 3'b010;
     localparam PIM_READ = 3'b011;
-    localparam PIM_PARALLEL = 3'b100;
-    localparam PIM_RBR = 3'b101;
-    localparam PIM_LOAD = 3'b110;
+    localparam PIM_ZP = 3'b100;
+    localparam PIM_PARALLEL = 3'b101;
+    localparam PIM_RBR = 3'b110;
+    localparam PIM_LOAD = 3'b111;
 
     logic pim_en;
     logic [2:0] pim_mode;
@@ -57,121 +54,6 @@ module eFlash_col_driver (
     assign col_b = col_addr9_i[1:0];
     assign row_c = row_addr7_i[6:4];
 
-    // -------------------- Buffer --------------------
-
-    logic [1:0]     input_data [0:255];
-    logic [1:0]     input_read [0:255];
-
-    // Write input data in the buffer
-    always_ff @ (posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
-            for (int i = 0; i < 256; i++) begin
-                input_data[i] <= '0;
-            end 
-        end else begin
-            if (in_buf_write_i) begin
-                if (data_cnt_i == 4'd0) begin
-                    for (int i = 0; i < 16; i++) begin
-                        input_data[i] <= input_data_i[2*i +: 2];
-                    end
-                end else if (data_cnt_i == 4'd1) begin
-                    for (int i = 16; i < 32; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd2) begin
-                    for (int i = 32; i < 48; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd3) begin
-                    for (int i = 48; i < 64; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd4) begin
-                    for (int i = 64; i < 80; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd5) begin
-                    for (int i = 80; i < 96; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd6) begin
-                    for (int i = 96; i < 112; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd7) begin
-                    for (int i = 112; i < 128; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd8) begin
-                    for (int i = 128; i < 144; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd9) begin
-                    for (int i = 144; i < 160; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd10) begin
-                    for (int i = 160; i < 176; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd11) begin
-                    for (int i = 176; i < 192; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd12) begin
-                    for (int i = 192; i < 208; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd13) begin
-                    for (int i = 208; i < 224; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd14) begin
-                    for (int i = 224; i < 240; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else if (data_cnt_i == 4'd15) begin
-                    for (int i = 240; i < 256; i++) begin
-                        input_data[i] <= input_data_i[2 * (i % 16) +: 2];
-                    end
-                end else begin
-                    for (int i = 0; i < 256; i++) begin
-                        input_data[i] <= input_data[i];
-                    end
-                end
-            end else begin
-                for (int i = 0; i < 256; i++) begin
-                    input_data[i] <= input_data[i];
-                end
-            end
-        end
-    end
-
-    // Read the data 
-    always_comb begin
-        if (in_buf_read_i) begin   
-            if (pim_mode == PIM_PARALLEL) begin
-                for (int i = 0; i < 256; i++) begin
-                    input_read[i] = input_data[i];
-                end
-            end else if (pim_mode == PIM_RBR) begin
-                for (int i = 0; i < 32; i++) begin
-                    input_read[i] = input_data[i];
-                end 
-                for (int j = 32; j < 256; j++) begin
-                    input_read[j] = '0;
-                end
-            end else begin
-                for (int i = 0; i < 256; i++) begin
-                    input_read[i] = '0;
-                end
-            end
-        end else begin
-            for (int i = 0; i < 256; i++) begin
-                input_read[i] = '0;
-            end
-        end
-    end
 
     // --------------------------- eFlash signal ---------------------------
     always_comb begin
@@ -245,7 +127,7 @@ module eFlash_col_driver (
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                     end else if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
                         for (int unsigned i = 0; i < 256; i++) begin
-                            case (input_read[i])
+                            case (input_data_i[i])
                                 2'b00: begin
                                     dumh[i] = '0;
                                 end
@@ -289,7 +171,7 @@ module eFlash_col_driver (
                     end else if (exec_cnt == 4'd5 || exec_cnt == 4'd4 || exec_cnt == 4'd3) begin
                         dumh = '0;
                         for (int unsigned i = 0; i < 32; i++) begin
-                            case (input_read[i])
+                            case (input_data_i[i])
                                 2'b00: begin
                                     dumh[8 * i + row_c] = '0;
                                 end

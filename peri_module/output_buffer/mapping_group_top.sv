@@ -10,10 +10,9 @@ module mapping_group_top (
 
     input logic             shift_counter_en_i,
 
-    input logic             mode_i,
+    input logic [2:0]       pim_mode_i,
 
     input logic             accum_buf_write_i,
-    //input logic             accum_buf_read_i,
 
     input logic             zero_point_en_i,
     input logic [31:0]      zero_point_i,
@@ -41,7 +40,7 @@ module mapping_group_top (
 
         .shift_counter_en_i(shift_counter_en_i),
 
-        .mode_i(mode_i),
+        .pim_mode_i(pim_mode_i),
 
         .output_o(output_32b)
     );
@@ -87,13 +86,15 @@ module mapping_group_top (
     //     end
     // end
 
-    always_comb begin
-        if (load_en_i) begin
-            mapping_group_o = accum_buf_o;
-        end else begin
-            mapping_group_o = '0;
-        end
-    end
+    // always_comb begin
+    //     if (load_en_i) begin
+    //         mapping_group_o = accum_buf_o;
+    //     end else begin
+    //         mapping_group_o = '0;
+    //     end
+    // end
+
+    assign mapping_group_o = accum_buf_o;
 
 
 
