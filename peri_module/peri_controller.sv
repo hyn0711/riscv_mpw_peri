@@ -233,6 +233,9 @@ module peri_controller #(
             data_rx_cnt_o <= '0;
             exec_cnt <= '0;
             zero_point <= '0;
+            pim_en <= '0;
+            out_cnt <= '0;
+            out_en <= '0;
         end else begin
             pim_mode_en <= '0; 
             load_cnt <= '0;
@@ -247,6 +250,9 @@ module peri_controller #(
             data_rx_cnt_o <= '0;
             exec_cnt <= '0;
             zero_point <= '0;
+            pim_en <= '0;
+            out_cnt <= '0;
+            out_en <= '0;
             case (current_state) 
                 WAIT_MODE: begin
                     if (address_i == PIM_MODE) begin
