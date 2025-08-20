@@ -669,7 +669,7 @@ module peri_controller #(
     always_comb begin
         data_o_next = '0;
         if (address_i == PIM_STATUS) begin
-            data_o_next = {30'b0, pim_data_valid, pim_busy};
+            data_o_next = {30'b0, pim_data_valid, ~pim_busy};
         end else if (load_out_en == 1'b1) begin
             data_o_next = output_result;
         end else begin
