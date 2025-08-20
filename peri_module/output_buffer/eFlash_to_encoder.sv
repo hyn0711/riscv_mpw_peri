@@ -122,6 +122,7 @@ module encoder (
     );
 
     always_comb begin
+        encoder_output = '0;
         if (pim_mode_i == 3'b101) begin
             encoder_output = parallel_enc_output;
         end else if (pim_mode_i == 3'b110) begin

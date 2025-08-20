@@ -134,6 +134,7 @@ module peri_controller #(
 
     // Next state logic
     always_comb begin
+        next_state = IDLE;
         case (current_state)
             IDLE: begin
                 if (address_i == PIM_STATUS) begin
@@ -220,8 +221,32 @@ module peri_controller #(
     always_ff @ (posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
             pim_mode_en <= '0; 
-        end else begin
+            load_cnt <= '0;
+            row_addr <= '0;
+            col_addr <= '0;
+            pulse_width <= '0;
+            pulse_count <= '0;
+            init_pulse_width <= '0;
+            init_pulse_count <= '0;
             in_buf_write_o <= '0;
+            input_data_o <= '0;
+            data_rx_cnt_o <= '0;
+            exec_cnt <= '0;
+            zero_point <= '0;
+        end else begin
+            pim_mode_en <= '0; 
+            load_cnt <= '0;
+            row_addr <= '0;
+            col_addr <= '0;
+            pulse_width <= '0;
+            pulse_count <= '0;
+            init_pulse_width <= '0;
+            init_pulse_count <= '0;
+            in_buf_write_o <= '0;
+            input_data_o <= '0;
+            data_rx_cnt_o <= '0;
+            exec_cnt <= '0;
+            zero_point <= '0;
             case (current_state) 
                 WAIT_MODE: begin
                     if (address_i == PIM_MODE) begin
@@ -243,7 +268,18 @@ module peri_controller #(
                     end
                 end
                 MODE_READY: begin
-                    pim_mode_en <= pim_mode_en;
+                    // pim_mode_en <= pim_mode_en;
+                    // row_addr <= '0;
+                    // col_addr <= '0;
+                    // pulse_width <= '0;
+                    // pulse_count <= '0;
+                    // init_pulse_width <= '0;
+                    // init_pulse_count <= '0;
+                    // in_buf_write_o <= '0;
+                    // input_data_o <= '0;
+                    // data_rx_cnt_o <= '0;
+                    // exec_cnt <= '0;
+                    // zero_point <= '0;
                     case (pim_mode_en)
                         PIM_ERASE_EN: begin // erase mode
                             if (address_i[31:20] == 12'h400) begin
@@ -355,6 +391,13 @@ module peri_controller #(
                     endcase
                 end
                 MODE_EXEC: begin
+                    // pim_en <= 1'b0;
+                    // pim_mode_en <= '0;
+                    // load_cnt <= '0;
+                    // exec_cnt <= '0;
+                    // out_cnt <= '0;
+                    // pulse_count <= '0;
+                    // pulse_width <= '0;
                     case (pim_mode_en)
                         PIM_ERASE_EN: begin    // erase
                             if (pulse_count != '0) begin
@@ -437,6 +480,11 @@ module peri_controller #(
                         default: begin
                             pim_en <= 1'b0;
                             pim_mode_en <= '0;
+                            load_cnt <= '0;
+                            exec_cnt <= '0;
+                            out_cnt <= '0;
+                            pulse_count <= '0;
+                            pulse_width <= '0;
                         end
                     endcase
                 end
@@ -457,6 +505,16 @@ module peri_controller #(
 
     // signal to PIM during MODE_EXEC state
     always_comb begin
+        pim_en_o = '0;
+        pim_mode_o = '0;
+        in_buf_read_o = '0;
+        row_addr7_o = '0;
+        col_addr9_o = '0;
+        exec_cnt_o = '0;
+        load_en_o = '0;
+        load_cnt_o = '0;
+        zero_point_en_o = '0;
+        zero_point_o = '0;
         case (pim_mode_en) 
             PIM_ERASE_EN: begin    // erase mode
                 if (pim_en) begin
@@ -570,6 +628,8 @@ module peri_controller #(
 
     // Output processing signal
     always_comb begin
+        buf_read_en_o = '0;
+        shift_counter_en_o = '0;
         if (out_en) begin
             if (out_cnt == 2'd1) begin
                 buf_read_en_o = 1'b0;
@@ -601,6 +661,7 @@ module peri_controller #(
     end
 
     always_comb begin
+        data_o_next = '0;
         if (address_i == PIM_STATUS) begin
             data_o_next = {30'b0, pim_data_valid, pim_busy};
         end else if (load_out_en == 1'b1) begin

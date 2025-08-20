@@ -26,7 +26,7 @@ module peri_top (
     output logic [7:0]      CSEL_o,
     output logic            ADC_EN1_o,
     output logic            ADC_EN2_o,
-    output logic [7:0]      QDAC_o,
+    output logic            QDAC_o,
     output logic [1:0]      RSEL_o,
 
     // Col wise signal
@@ -53,7 +53,7 @@ module peri_top (
     // Controller -> Output buffer
     logic buf_read_en, shift_counter_en, zero_point_en, load_en;
     logic [31:0] zero_point;
-    logic [4:0] load_cnt;
+    logic [5:0] load_cnt;
 
     logic [31:0] out_buf_output;
 

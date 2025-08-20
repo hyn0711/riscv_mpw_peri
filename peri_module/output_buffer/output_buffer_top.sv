@@ -20,7 +20,7 @@ module output_buffer_top (
 
     // Load mode
     input logic             load_en_i, 
-    input logic [4:0]       load_cnt_i,     // 0 ~ 31
+    input logic [5:0]       load_cnt_i,     // 0 ~ 31
 
     output logic [31:0]     out_buf_o
 );
@@ -45,10 +45,12 @@ module output_buffer_top (
     end
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
-        for (int i = 0; i < 32; i++) begin
-            if (!rst_ni) begin
-                load_out_en[i] = '0;
-            end else begin
+        if (!rst_ni) begin
+            for (int i = 0; i < 32; i++) begin
+                load_out_en[i] <= '0;
+            end
+        end else begin
+            for (int i = 0; i < 32; i++) begin
                 load_out_en[i] <= load_en[i];
             end 
         end
@@ -86,6 +88,7 @@ module output_buffer_top (
     endgenerate
 
     always_comb begin
+        out_buf_o = '0;
         if (load_out_en[0]) begin
             out_buf_o = mapping_group_output[0];
         end else if (load_out_en[1]) begin
