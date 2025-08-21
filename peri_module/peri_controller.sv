@@ -81,11 +81,9 @@ module peri_controller #(
 
     state_t current_state, next_state;
 
-
-
     logic   erase_en, program_en, read_en, zp_en, parallel_en, rbr_en, load_en;
 
-    logic   [3:0] data_rx_cnt;
+    //logic   [3:0] data_rx_cnt;
 
     logic   [6:0] row_addr;
     logic   [8:0] col_addr;
@@ -94,9 +92,9 @@ module peri_controller #(
 
     logic   pim_busy, pim_data_valid;
 
-    logic   pim_en, load_exec_en;
+    logic   pim_en;
     logic   [3:0] exec_cnt;
-    logic   [5:0] read_ptr;
+    //logic   [5:0] read_ptr;
 
     logic   [5:0] load_cnt;
 
@@ -274,7 +272,7 @@ module peri_controller #(
                     end
                 end
                 MODE_READY: begin
-                    // pim_mode_en <= pim_mode_en;
+                    pim_mode_en <= pim_mode_en;
                     // row_addr <= '0;
                     // col_addr <= '0;
                     // pulse_width <= '0;
