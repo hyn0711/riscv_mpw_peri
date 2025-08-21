@@ -296,7 +296,6 @@ module eFlash_row_driver (
                         end
                     end
                     duml = '0;
-                    csl = 8'hFF;
                     adc_en1 = 1'b0;
                     adc_en2 = 1'b0;
                     qdac = 1'b1;
@@ -304,18 +303,20 @@ module eFlash_row_driver (
                     for (int unsigned j = 0; j < 4; j++) begin
                         if (j == (col_addr9_i%4)) begin
                             for (int unsigned k = 0; k < 8; k++) begin
-                                bsel[8*k+j] = 1'b1;
+                                bsel[4*k+j] = 1'b1;
                             end
                         end else begin
                             for (int unsigned k = 0; k < 8; k++) begin
-                                bsel[8*k+j] = 1'b0;
+                                bsel[4*k+j] = 1'b0;
                             end
                         end
                     end
                     for (int unsigned k = 0; k < 8; k++) begin
                         if (k == (row_addr7_i/16)) begin
+                            csl[k] = 1'b1;
                             csel[k] = 1'b1;
                         end else begin
+                            csl[k] = 1'b0;
                             csel[k] = 1'b0;
                         end
                     end
@@ -353,11 +354,11 @@ module eFlash_row_driver (
                         for (int unsigned j = 0; j < 4; j++) begin
                             if (j == col_b) begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b1;
+                                    bsel[4 * k + j] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b0;
+                                    bsel[4 * k + j] = 1'b0;
                                 end
                             end
                         end
@@ -377,11 +378,11 @@ module eFlash_row_driver (
                         for (int unsigned j = 0; j < 4; j++) begin
                             if (j == col_b) begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b1;
+                                    bsel[4 * k + j] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b0;
+                                    bsel[4 * k + j] = 1'b0;
                                 end
                             end
                         end
@@ -395,11 +396,11 @@ module eFlash_row_driver (
                         for (int unsigned i = 0; i < 4; i++) begin
                             if (i == col_b) begin
                                 for (int unsigned j = 0; j < 8; j++) begin
-                                    bsel[8 * j + i] = 1'b1;
+                                    bsel[4 * j + i] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned j = 0; j < 8; j++) begin
-                                    bsel[8 * j + i] = 1'b0;
+                                    bsel[4 * j + i] = 1'b0;
                                 end
                             end
                         end
@@ -476,11 +477,11 @@ module eFlash_row_driver (
                         for (int unsigned i = 0; i < 4; i++) begin
                             if (i == col_b) begin
                                 for (int unsigned j = 0; j < 8; j++) begin
-                                    bsel[8 * j + i] = 1'b1;
+                                    bsel[4 * j + i] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned j = 0; j < 8; j++) begin
-                                    bsel[8 * j + i] = 1'b0;
+                                    bsel[4 * j + i] = 1'b0;
                                 end
                             end
                         end
@@ -494,11 +495,11 @@ module eFlash_row_driver (
                         for (int unsigned i = 0; i < 4; i++) begin
                             if (i == col_b) begin
                                 for (int unsigned j = 0; j < 8; j++) begin
-                                    bsel[8 * j + i] = 1'b1;
+                                    bsel[4 * j + i] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned j = 0; j < 8; j++) begin
-                                    bsel[8 * j + i] = 1'b0;
+                                    bsel[4 * j + i] = 1'b0;
                                 end
                             end
                         end
@@ -586,11 +587,11 @@ module eFlash_row_driver (
                         for (int unsigned j = 0; j < 4; j++) begin
                             if (j == col_b) begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b1;
+                                    bsel[4 * k + j] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b0;
+                                    bsel[4 * k + j] = 1'b0;
                                 end
                             end
                         end
@@ -610,11 +611,11 @@ module eFlash_row_driver (
                         for (int unsigned j = 0; j < 4; j++) begin
                             if (j == col_b) begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b1;
+                                    bsel[4 * k + j] = 1'b1;
                                 end
                             end else begin
                                 for (int unsigned k = 0; k < 8; k++) begin
-                                    bsel[8 * k + j] = 1'b0;
+                                    bsel[4 * k + j] = 1'b0;
                                 end
                             end
                         end               

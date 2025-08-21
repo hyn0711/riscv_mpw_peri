@@ -235,22 +235,22 @@ module peri_controller #(
             out_cnt <= '0;
             out_en <= '0;
         end else begin
-            pim_mode_en <= '0; 
-            load_cnt <= '0;
-            row_addr <= '0;
-            col_addr <= '0;
-            pulse_width <= '0;
-            pulse_count <= '0;
-            init_pulse_width <= '0;
-            init_pulse_count <= '0;
-            in_buf_write_o <= '0;
-            input_data_o <= '0;
-            data_rx_cnt_o <= '0;
-            exec_cnt <= '0;
-            zero_point <= '0;
-            pim_en <= '0;
-            out_cnt <= '0;
-            out_en <= '0;
+            // pim_mode_en <= '0; 
+            // load_cnt <= '0;
+            // row_addr <= '0;
+            // col_addr <= '0;
+            // pulse_width <= '0;
+            // pulse_count <= '0;
+            // init_pulse_width <= '0;
+            // init_pulse_count <= '0;
+            // in_buf_write_o <= '0;
+            // input_data_o <= '0;
+            // data_rx_cnt_o <= '0;
+            // exec_cnt <= '0;
+            // zero_point <= '0;
+            // pim_en <= '0;
+            // out_cnt <= '0;
+            // out_en <= '0;
             case (current_state) 
                 WAIT_MODE: begin
                     if (address_i == PIM_MODE) begin
@@ -395,6 +395,7 @@ module peri_controller #(
                     endcase
                 end
                 MODE_EXEC: begin
+                    pim_mode_en <= pim_mode_en;
                     // pim_en <= 1'b0;
                     // pim_mode_en <= '0;
                     // load_cnt <= '0;
