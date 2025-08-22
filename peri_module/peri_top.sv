@@ -48,12 +48,13 @@ module peri_top (
     logic in_buf_write, in_buf_read;
 
     // Row driver -> Output buffer
-    logic buf_write_en_1, buf_write_en_2;
+    logic buf_write_en_0, buf_write_en_1, buf_write_en_2;
 
     // Controller -> Output buffer
     logic buf_read_en, shift_counter_en, zero_point_en, load_en;
     logic [31:0] zero_point;
     logic [5:0] load_cnt;
+    logic [1:0] before_load_mode;
 
     logic [31:0] out_buf_output;
 
@@ -92,7 +93,8 @@ module peri_top (
         .zero_point_o(zero_point),
 
         .load_en_o(load_en),
-        .load_cnt_o(load_cnt)
+        .load_cnt_o(load_cnt),
+        .before_load_mode_o(before_load_mode)
     );
 
 
@@ -132,6 +134,7 @@ module peri_top (
         .QDAC_o(QDAC_o),
         .RSEL_o(RSEL_o),
 
+        .buf_write_en_0_o(buf_write_en_0),
         .buf_write_en_1_o(buf_write_en_1),
         .buf_write_en_2_o(buf_write_en_2)
 );
@@ -163,6 +166,7 @@ module peri_top (
         .output_i(eFlash_output_i),
 
     // Buffer signal 
+        .buf_write_en_0_i(buf_write_en_0),
         .buf_write_en_1_i(buf_write_en_1),
         .buf_write_en_2_i(buf_write_en_2),
         .buf_read_en_i(buf_read_en),
@@ -176,8 +180,11 @@ module peri_top (
         .zero_point_i(zero_point),
 
     // Load mode
+        .pim_en_i(pim_en),
+        .col_addr9_i(col_addr9),
         .load_en_i(load_en),
         .load_cnt_i(load_cnt),     // 0 ~ 31
+        .before_load_mode_i(before_load_mode),
 
         .out_buf_o(out_buf_output)
     );

@@ -46,7 +46,8 @@ module peri_controller #(
 
     // Load mode
     output logic        load_en_o,
-    output logic [5:0]  load_cnt_o
+    output logic [5:0]  load_cnt_o,
+    output logic [1:0]  before_load_mode_o
 );
 
     // localparam MODE = 32'h4100_0000;
@@ -118,6 +119,9 @@ module peri_controller #(
     assign pim_data_valid = 1'b1;
 
     logic exec_trigger, exec_finish, output_finish, zp_finish;
+
+    // Mode data before load mode
+    logic [1:0] before_load_mode;
 
 
     // FSM
@@ -215,6 +219,7 @@ module peri_controller #(
         (pim_mode_en == PIM_ZP_EN && address_i == PIM_ZP_ADDR));
 
 
+
     // Register ------------------------------------------------------------------
     always_ff @ (posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
@@ -234,56 +239,64 @@ module peri_controller #(
             pim_en <= '0;
             out_cnt <= '0;
             out_en <= '0;
+
+            before_load_mode <= '0;
         end else begin
-            // pim_mode_en <= '0; 
-            // load_cnt <= '0;
-            // row_addr <= '0;
-            // col_addr <= '0;
-            // pulse_width <= '0;
-            // pulse_count <= '0;
-            // init_pulse_width <= '0;
-            // init_pulse_count <= '0;
-            // in_buf_write_o <= '0;
-            // input_data_o <= '0;
-            // data_rx_cnt_o <= '0;
-            // exec_cnt <= '0;
-            // zero_point <= '0;
-            // pim_en <= '0;
-            // out_cnt <= '0;
-            // out_en <= '0;
             case (current_state) 
                 WAIT_MODE: begin
                     if (address_i == PIM_MODE) begin
                         case (data_i[2:0]) 
-                            PIM_ERASE: pim_mode_en <= PIM_ERASE_EN;
-                            PIM_PROGRAM: pim_mode_en <= PIM_PROGRAM_EN;
-                            PIM_READ: pim_mode_en <= PIM_READ_EN;
-                            PIM_ZP: pim_mode_en <= PIM_ZP_EN;
-                            PIM_PARALLEL: pim_mode_en <= PIM_PARALLEL_EN;
-                            PIM_RBR: pim_mode_en <= PIM_RBR_EN;
+                            PIM_ERASE: begin
+                                pim_mode_en <= PIM_ERASE_EN;
+                                before_load_mode <= '0;
+                            end
+                            PIM_PROGRAM: begin
+                                pim_mode_en <= PIM_PROGRAM_EN;
+                                before_load_mode <= '0;
+                            end
+                            PIM_READ: begin
+                                pim_mode_en <= PIM_READ_EN;
+                                before_load_mode <= 2'd1;
+                            end
+                            PIM_ZP: begin
+                                pim_mode_en <= PIM_ZP_EN;
+                                before_load_mode <= '0;
+                            end
+                            PIM_PARALLEL: begin
+                                pim_mode_en <= PIM_PARALLEL_EN;
+                                before_load_mode <= 2'd2;
+                            end
+                            PIM_RBR: begin
+                                pim_mode_en <= PIM_RBR_EN;
+                                before_load_mode <= 2'd3;
+                            end
                             PIM_LOAD: begin
                                 pim_mode_en <= PIM_LOAD_EN;
-                                load_cnt <= 6'd32;
+                                if (before_load_mode == 2'd1) begin // Read 
+                                    load_cnt <= 6'd1;
+                                end else if (before_load_mode == 2'd2 || before_load_mode == 2'd3) begin // Parallel & Rbr
+                                    load_cnt <= 6'd32;
+                                end else begin
+                                    load_cnt <= '0;
+                                end     
+                                before_load_mode <= before_load_mode;                           
                             end
-                            default: pim_mode_en <= '0;
+                            default: begin
+                                pim_mode_en <= '0;
+                                before_load_mode <= before_load_mode;
+                                load_cnt <= '0;
+                            end
+
                         endcase
                     end else begin
                         pim_mode_en <= '0;
+                        before_load_mode <= before_load_mode;
+                        load_cnt <= '0;
                     end
                 end
                 MODE_READY: begin
                     pim_mode_en <= pim_mode_en;
-                    // row_addr <= '0;
-                    // col_addr <= '0;
-                    // pulse_width <= '0;
-                    // pulse_count <= '0;
-                    // init_pulse_width <= '0;
-                    // init_pulse_count <= '0;
-                    // in_buf_write_o <= '0;
-                    // input_data_o <= '0;
-                    // data_rx_cnt_o <= '0;
-                    // exec_cnt <= '0;
-                    // zero_point <= '0;
+                    before_load_mode <= before_load_mode;
                     case (pim_mode_en)
                         PIM_ERASE_EN: begin // erase mode
                             if (address_i[31:20] == 12'h400) begin
@@ -396,13 +409,7 @@ module peri_controller #(
                 end
                 MODE_EXEC: begin
                     pim_mode_en <= pim_mode_en;
-                    // pim_en <= 1'b0;
-                    // pim_mode_en <= '0;
-                    // load_cnt <= '0;
-                    // exec_cnt <= '0;
-                    // out_cnt <= '0;
-                    // pulse_count <= '0;
-                    // pulse_width <= '0;
+                    before_load_mode <= before_load_mode;
                     case (pim_mode_en)
                         PIM_ERASE_EN: begin    // erase
                             if (pulse_count != '0) begin
@@ -494,6 +501,7 @@ module peri_controller #(
                     endcase
                 end
                 MODE_OUTPUT: begin
+                    before_load_mode <= before_load_mode;
                     if (out_cnt != 0) begin
                         out_cnt <= out_cnt - 2'd1;
                         out_en <= 1'b1;                        
@@ -520,6 +528,7 @@ module peri_controller #(
         load_cnt_o = '0;
         zero_point_en_o = '0;
         zero_point_o = '0;
+        before_load_mode_o = '0;
         case (pim_mode_en) 
             PIM_ERASE_EN: begin    // erase mode
                 if (pim_en) begin
@@ -611,9 +620,11 @@ module peri_controller #(
                 if (pim_en) begin
                     load_en_o = 1'b1;
                     load_cnt_o = load_cnt;
+                    before_load_mode_o = before_load_mode;
                 end else begin
                     load_en_o = '0;
                     load_cnt_o = '0;
+                    before_load_mode_o = '0;
                 end
             end
             default: begin
@@ -627,6 +638,7 @@ module peri_controller #(
                 load_cnt_o = '0;
                 zero_point_en_o = '0;
                 zero_point_o = '0;
+                before_load_mode_o = '0;
             end
         endcase
     end
@@ -669,7 +681,9 @@ module peri_controller #(
         data_o_next = '0;
         if (address_i == PIM_STATUS) begin
             data_o_next = {30'b0, pim_data_valid, ~pim_busy};
-        end else if (load_out_en == 1'b1) begin
+        end else if ((before_load_mode == 2'd2 || before_load_mode == 2'd3) && load_out_en == 1'b1) begin
+            data_o_next = output_result;
+        end else if (before_load_mode == 2'd1 || load_en_o == 1'b1) begin
             data_o_next = output_result;
         end else begin
             data_o_next = '0;
