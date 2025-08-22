@@ -681,7 +681,7 @@ module peri_controller #(
         data_o_next = '0;
         if (address_i == PIM_STATUS) begin
             data_o_next = {30'b0, pim_data_valid, ~pim_busy};
-        end else if ((before_load_mode == 2'd2 || before_load_mode == 2'd3) && load_out_en == 1'b1) begin
+        end else if ((before_load_mode == 2'd2 || before_load_mode == 2'd3) && load_en_o == 1'b1) begin
             data_o_next = output_result;
         end else if (before_load_mode == 2'd1 || load_en_o == 1'b1) begin
             data_o_next = output_result;

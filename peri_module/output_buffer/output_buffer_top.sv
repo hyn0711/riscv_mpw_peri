@@ -42,7 +42,7 @@ module output_buffer_top (
     // Load mode, send the output to RISC-V
     logic load_en [0:31];
     //logic load_en_read;
-    logic load_out_en [0:31];
+    //logic load_out_en [0:31];
 
     always_comb begin
         if (before_load_mode_i != '0) begin
@@ -57,17 +57,17 @@ module output_buffer_top (
         end  
     end
 
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
-            for (int i = 0; i < 32; i++) begin
-                load_out_en[i] <= '0;
-            end
-        end else begin
-            for (int i = 0; i < 32; i++) begin
-                load_out_en[i] <= load_en[i];
-            end 
-        end
-    end
+    // always_ff @(posedge clk_i or negedge rst_ni) begin
+    //     if (!rst_ni) begin
+    //         for (int i = 0; i < 32; i++) begin
+    //             load_out_en[i] <= '0;
+    //         end
+    //     end else begin
+    //         for (int i = 0; i < 32; i++) begin
+    //             load_out_en[i] <= load_en[i];
+    //         end 
+    //     end
+    // end
 
     // Read mode
     output_buffer_read_mode o_b_read(
@@ -117,69 +117,69 @@ module output_buffer_top (
     always_comb begin
         out_buf_o = '0;
         if (before_load_mode_i == 2'd2 || before_load_mode_i == 2'd3) begin
-            if (load_out_en[0]) begin
+            if (load_en[0]) begin
                 out_buf_o = mapping_group_output[0];
-            end else if (load_out_en[1]) begin
+            end else if (load_en[1]) begin
                 out_buf_o = mapping_group_output[1];
-            end else if (load_out_en[2]) begin
+            end else if (load_en[2]) begin
                 out_buf_o = mapping_group_output[2];
-            end else if (load_out_en[3]) begin
+            end else if (load_en[3]) begin
                 out_buf_o = mapping_group_output[3];
-            end else if (load_out_en[4]) begin
+            end else if (load_en[4]) begin
                 out_buf_o = mapping_group_output[4];
-            end else if (load_out_en[5]) begin
+            end else if (load_en[5]) begin
                 out_buf_o = mapping_group_output[5];
-            end else if (load_out_en[6]) begin
+            end else if (load_en[6]) begin
                 out_buf_o = mapping_group_output[6];
-            end else if (load_out_en[7]) begin
+            end else if (load_en[7]) begin
                 out_buf_o = mapping_group_output[7];
-            end else if (load_out_en[8]) begin
+            end else if (load_en[8]) begin
                 out_buf_o = mapping_group_output[8];
-            end else if (load_out_en[9]) begin
+            end else if (load_en[9]) begin
                 out_buf_o = mapping_group_output[9];
-            end else if (load_out_en[10]) begin
+            end else if (load_en[10]) begin
                 out_buf_o = mapping_group_output[10];
-            end else if (load_out_en[11]) begin
+            end else if (load_en[11]) begin
                 out_buf_o = mapping_group_output[11];
-            end else if (load_out_en[12]) begin
+            end else if (load_en[12]) begin
                 out_buf_o = mapping_group_output[12];
-            end else if (load_out_en[13]) begin
+            end else if (load_en[13]) begin
                 out_buf_o = mapping_group_output[13];
-            end else if (load_out_en[14]) begin
+            end else if (load_en[14]) begin
                 out_buf_o = mapping_group_output[14];
-            end else if (load_out_en[15]) begin
+            end else if (load_en[15]) begin
                 out_buf_o = mapping_group_output[15];
-            end else if (load_out_en[16]) begin
+            end else if (load_en[16]) begin
                 out_buf_o = mapping_group_output[16];
-            end else if (load_out_en[17]) begin
+            end else if (load_en[17]) begin
                 out_buf_o = mapping_group_output[17];
-            end else if (load_out_en[18]) begin
+            end else if (load_en[18]) begin
                 out_buf_o = mapping_group_output[18];
-            end else if (load_out_en[19]) begin
+            end else if (load_en[19]) begin
                 out_buf_o = mapping_group_output[19];
-            end else if (load_out_en[20]) begin
+            end else if (load_en[20]) begin
                 out_buf_o = mapping_group_output[20];
-            end else if (load_out_en[21]) begin
+            end else if (load_en[21]) begin
                 out_buf_o = mapping_group_output[21];
-            end else if (load_out_en[22]) begin
+            end else if (load_en[22]) begin
                 out_buf_o = mapping_group_output[22];
-            end else if (load_out_en[23]) begin
+            end else if (load_en[23]) begin
                 out_buf_o = mapping_group_output[23];
-            end else if (load_out_en[24]) begin
+            end else if (load_en[24]) begin
                 out_buf_o = mapping_group_output[24];
-            end else if (load_out_en[25]) begin
+            end else if (load_en[25]) begin
                 out_buf_o = mapping_group_output[25];
-            end else if (load_out_en[26]) begin
+            end else if (load_en[26]) begin
                 out_buf_o = mapping_group_output[26];
-            end else if (load_out_en[27]) begin
+            end else if (load_en[27]) begin
                 out_buf_o = mapping_group_output[27];
-            end else if (load_out_en[28]) begin
+            end else if (load_en[28]) begin
                 out_buf_o = mapping_group_output[28];
-            end else if (load_out_en[29]) begin
+            end else if (load_en[29]) begin
                 out_buf_o = mapping_group_output[29];
-            end else if (load_out_en[30]) begin
+            end else if (load_en[30]) begin
                 out_buf_o = mapping_group_output[30];
-            end else if (load_out_en[31]) begin
+            end else if (load_en[31]) begin
                 out_buf_o = mapping_group_output[31];
             end else begin
                 out_buf_o = '0;
