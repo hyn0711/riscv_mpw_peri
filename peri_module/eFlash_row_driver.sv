@@ -176,61 +176,61 @@ module eFlash_row_driver (
     end
 
     // Read the data 
-    // always_comb begin
-    //     if (in_buf_read_i) begin   
-    //         if (pim_mode == PIM_PARALLEL) begin
-    //             for (int i = 0; i < 256; i++) begin
-    //                 input_data_o[i] = mem[i];
-    //             end
-    //         end else if (pim_mode == PIM_RBR) begin
-    //             for (int i = 0; i < 32; i++) begin
-    //                 input_data_o[i] = mem[i];
-    //             end 
-    //             for (int j = 32; j < 256; j++) begin
-    //                 input_data_o[j] = '0;
-    //             end
-    //         end else begin
-    //             for (int i = 0; i < 256; i++) begin
-    //                 input_data_o[i] = '0;
-    //             end
-    //         end
-    //     end else begin
-    //         for (int i = 0; i < 256; i++) begin
-    //             input_data_o[i] = '0;
-    //         end
-    //     end
-    // end
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
-            for (int i = 0; i < 256; i++) begin
-                input_data_o[i] <= '0;
-            end
-        end else begin
-            if (in_buf_read_i) begin   
-                if (pim_mode == PIM_PARALLEL) begin
-                    for (int i = 0; i < 256; i++) begin
-                        input_data_o[i] <= mem[i];
-                    end
-                end else if (pim_mode == PIM_RBR) begin
-                    for (int i = 0; i < 32; i++) begin
-                        input_data_o[i] <= mem[i];
-                    end 
-                    for (int j = 32; j < 256; j++) begin
-                        input_data_o[j] <= '0;
-                    end
-                end else begin
-                    for (int i = 0; i < 256; i++) begin
-                        input_data_o[i] <= '0;
-                    end
+    always_comb begin
+        if (in_buf_read_i) begin   
+            if (pim_mode == PIM_PARALLEL) begin
+                for (int i = 0; i < 256; i++) begin
+                    input_data_o[i] = mem[i];
+                end
+            end else if (pim_mode == PIM_RBR) begin
+                for (int i = 0; i < 32; i++) begin
+                    input_data_o[i] = mem[i];
+                end 
+                for (int j = 32; j < 256; j++) begin
+                    input_data_o[j] = '0;
                 end
             end else begin
                 for (int i = 0; i < 256; i++) begin
-                    input_data_o[i] <= '0;
+                    input_data_o[i] = '0;
                 end
-            end   
+            end
+        end else begin
+            for (int i = 0; i < 256; i++) begin
+                input_data_o[i] = '0;
+            end
         end
-    end     
+    end
+
+    // always_ff @(posedge clk_i or negedge rst_ni) begin
+    //     if (!rst_ni) begin
+    //         for (int i = 0; i < 256; i++) begin
+    //             input_data_o[i] <= '0;
+    //         end
+    //     end else begin
+    //         if (in_buf_read_i) begin   
+    //             if (pim_mode == PIM_PARALLEL) begin
+    //                 for (int i = 0; i < 256; i++) begin
+    //                     input_data_o[i] <= mem[i];
+    //                 end
+    //             end else if (pim_mode == PIM_RBR) begin
+    //                 for (int i = 0; i < 32; i++) begin
+    //                     input_data_o[i] <= mem[i];
+    //                 end 
+    //                 for (int j = 32; j < 256; j++) begin
+    //                     input_data_o[j] <= '0;
+    //                 end
+    //             end else begin
+    //                 for (int i = 0; i < 256; i++) begin
+    //                     input_data_o[i] <= '0;
+    //                 end
+    //             end
+    //         end else begin
+    //             for (int i = 0; i < 256; i++) begin
+    //                 input_data_o[i] <= '0;
+    //             end
+    //         end   
+    //     end
+    // end     
 
 
 // --------------------------- eFlash signal ---------------------------
@@ -342,13 +342,13 @@ module eFlash_row_driver (
                     end
                     rsel = 2'b01;
 
-                    if (exec_cnt == 4'd0) begin
+                    if (exec_cnt == 4'd1) begin
                         buf_write_en_0 = 1'b1;
                     end else begin
                         buf_write_en_0 = '0;
                     end
 
-                    if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
+                    if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
                         csl = '0;
                         csel = '0;
                         adc_en1 = '0;
@@ -372,7 +372,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end
-                    end else if (exec_cnt == 4'd5) begin
+                    end else if (exec_cnt == 4'd6) begin
                         csl = '0;
                         csel = '0;
                         adc_en1 = '0;
@@ -396,7 +396,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end
-                    end else if (exec_cnt == 4'd4 || exec_cnt == 4'd3) begin
+                    end else if (exec_cnt == 4'd5 || exec_cnt == 4'd4) begin
                         duml = '0;
                         csl = '0;
                         csel = '0;
@@ -414,7 +414,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end
-                    end else if (exec_cnt == 4'd2) begin
+                    end else if (exec_cnt == 4'd3) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -428,7 +428,7 @@ module eFlash_row_driver (
                                 csel[i] = 1'b0;
                             end 
                         end
-                    end else if (exec_cnt == 4'd1 || exec_cnt == 4'd0) begin
+                    end else if (exec_cnt == 4'd2 || exec_cnt == 4'd1) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -466,19 +466,19 @@ module eFlash_row_driver (
                     rsel = 2'b10;
                     buf_write_en_0 = '0;
 
-                    if (exec_cnt == 4'd3) begin
+                    if (exec_cnt == 4'd4) begin
                         buf_write_en_1 = 1'b1;
                     end else begin
                         buf_write_en_1 = '0;
                     end
 
-                    if (exec_cnt == 4'd0) begin
+                    if (exec_cnt == 4'd1) begin
                         buf_write_en_2 = 1'b1;
                     end else begin
                         buf_write_en_2 = '0;
                     end 
 
-                    if (exec_cnt == 4'd11 || exec_cnt == 4'd10 || exec_cnt == 4'd9) begin
+                    if (exec_cnt == 4'd12 || exec_cnt == 4'd11 || exec_cnt == 4'd10) begin
                         duml = 8'hFF;
                         csl = '0;
                         csel = '0;
@@ -496,7 +496,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end
-                    end else if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
+                    end else if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
                         duml = 8'hFF;
                         csl = '0;
                         csel = '0;
@@ -514,7 +514,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end
-                    end else if (exec_cnt == 4'd5) begin
+                    end else if (exec_cnt == 4'd6) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -522,7 +522,7 @@ module eFlash_row_driver (
                         adc_en1 = '0;
                         adc_en2 = '0;
                         qdac = 1'b1;
-                    end else if (exec_cnt == 4'd4) begin
+                    end else if (exec_cnt == 4'd5) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -530,7 +530,7 @@ module eFlash_row_driver (
                         adc_en1 = 1'b1;
                         adc_en2 = 1'b0;
                         qdac = 1'b1;
-                    end else if (exec_cnt == 4'd3) begin
+                    end else if (exec_cnt == 4'd4) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -538,7 +538,7 @@ module eFlash_row_driver (
                         adc_en1 = 1'b1;
                         adc_en2 = '0;
                         qdac = '0;
-                    end else if (exec_cnt == 4'd2) begin
+                    end else if (exec_cnt == 4'd3) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -546,7 +546,7 @@ module eFlash_row_driver (
                         adc_en1 = '0;
                         adc_en2 = '0;
                         qdac = '0;
-                    end else if (exec_cnt == 4'd1 || exec_cnt == 4'd0) begin
+                    end else if (exec_cnt == 4'd2 || exec_cnt == 4'd1) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -578,13 +578,13 @@ module eFlash_row_driver (
                     rsel = 2'b01;
                     buf_write_en_0 = '0;
                     buf_write_en_2 = '0;
-                    if (exec_cnt == 4'd0) begin
+                    if (exec_cnt == 4'd1) begin
                         buf_write_en_1 = 1'b1;
                     end else begin
                         buf_write_en_1 = '0;
                     end
 
-                    if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
+                    if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
                         csl = '0;
                         csel = '0;
                         adc_en1 = '0;
@@ -608,7 +608,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end
-                    end else if (exec_cnt == 4'd5 || exec_cnt == 4'd4 || exec_cnt == 4'd3) begin
+                    end else if (exec_cnt == 4'd6 || exec_cnt == 4'd5 || exec_cnt == 4'd4) begin
                         csl = '0;
                         csel = '0;
                         adc_en1 = '0;
@@ -632,7 +632,7 @@ module eFlash_row_driver (
                                 end
                             end
                         end               
-                    end else if (exec_cnt == 4'd2) begin
+                    end else if (exec_cnt == 4'd3) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;
@@ -646,7 +646,7 @@ module eFlash_row_driver (
                                 csel[i] = 1'b0;
                             end
                         end
-                    end else if (exec_cnt == 4'd1 || exec_cnt == 4'd0) begin
+                    end else if (exec_cnt == 4'd2 || exec_cnt == 4'd1) begin
                         duml = '0;
                         csl = '0;
                         bsel = '0;               

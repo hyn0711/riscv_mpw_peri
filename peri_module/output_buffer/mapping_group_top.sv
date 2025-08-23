@@ -1,101 +1,121 @@
 module mapping_group_top (
-    input logic             clk_i,
-    input logic             rst_ni,
+    input logic                 clk_i,
+    input logic                 rst_ni,
 
-    input logic [31:0]      output_i,
+    // buffer for pim output
+    input logic [31:0]          pim_output_i,
 
-    input logic             buf_write_en_1_i,
-    input logic             buf_write_en_2_i,
-    input logic             buf_read_en_i,
+    input logic                 pim_out_buf_w_en_1_i,
+    input logic                 pim_out_buf_w_en_2_i,
 
-    input logic             shift_counter_en_i,
+    input logic                 pim_out_buf_r_en_i,
 
-    input logic [2:0]       pim_mode_i,
+    // signal for encoder
+    input logic [2:0]           pim_mode_i,
 
-    input logic             accum_buf_write_i,
+    input logic                 output_processing_done_i,
 
-    input logic             zero_point_en_i,
-    input logic [31:0]      zero_point_i,
+    input logic                 load_en_i,
 
-    // Load mode 
-    input logic             load_en_i,
+    // Zero point 
+    input logic                 zp_en_i,
+    input logic signed [31:0]   zp_data_i,
 
-    output logic [31:0]     mapping_group_o
+    output logic [31:0]         mapping_group_output_o
 );
 
-    logic [31:0] output_32b, accum_buf_o;
+    logic [7:0] buf_out_8b_1 [0:3];
+    logic [7:0] buf_out_8b_2 [0:3];
 
-    logic [31:0] zero_point_r;
+    logic [6:0] encoder_output [0:3];
 
-    mapping_group_shift mgs (
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
+    logic shift_counter_en;
+    assign shift_counter_en = output_processing_done_i;
 
-        .output_i(output_i),       // 8bit * 4
+    logic [19:0] shifter_output;
 
-    // Buffer write & read signal
-        .buf_write_en_1_i(buf_write_en_1_i),
-        .buf_write_en_2_i(buf_write_en_2_i),
-        .buf_read_en_i(buf_read_en_i),
+    logic accum_buf_write_en;
+    assign accum_buf_write_en = output_processing_done_i;
+    logic accum_buf_read_en;
+    assign accum_buf_read_en = load_en_i;
 
-        .shift_counter_en_i(shift_counter_en_i),
+    logic [31:0] accum_buf_output;
 
-        .pim_mode_i(pim_mode_i),
 
-        .output_o(output_32b)
-    );
+    logic signed [31:0] zp_data;
 
-    accum_buffer ab (
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
-
-        .write_en_i(accum_buf_write_i),
-
-        .data_i(output_32b),
-
-        .read_en_i(load_en_i),
-        .zero_point_i(zero_point_r),
-
-        .data_o(accum_buf_o)
-    );
-
-    // Zero point register
-
+    //--|Zero point|-----------------------------------------------
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
-            zero_point_r <= '0;
+            zp_data <= '0;
         end else begin
-            if (zero_point_en_i) begin
-                zero_point_r <= zero_point_i;
+            if (zp_en_i) begin
+                zp_data <= zp_data_i;
             end else begin
-                zero_point_r <= zero_point_r;
-            end 
+                zp_data <= zp_data;
+            end
         end
     end
 
-    // Load mode 
-    // always_ff @(posedge clk_i or negedge rst_ni) begin
-    //     if (!rst_ni) begin
-    //         mapping_group_o <= '0;
-    //     end else begin
-    //         if (load_en_i) begin
-    //             mapping_group_o <= accum_buf_o;
-    //         end else begin
-    //             mapping_group_o <= '0;
-    //         end
-    //     end
-    // end
+    buffer_8b buf_8b (
+        .clk_i(clk_i),
+        .rst_ni(rst_ni),
 
-    // always_comb begin
-    //     if (load_en_i) begin
-    //         mapping_group_o = accum_buf_o;
-    //     end else begin
-    //         mapping_group_o = '0;
-    //     end
-    // end
+        .output_i(pim_output_i),       // Output from eFlash pim
 
-    assign mapping_group_o = accum_buf_o;
+        .buf_write_en_1_i(pim_out_buf_w_en_1_i),
+        .buf_write_en_2_i(pim_out_buf_w_en_2_i),
+
+        .buf_read_en_i(pim_out_buf_r_en_i),
+
+        .output_1_o(buf_out_8b_1),
+        .output_2_o(buf_out_8b_2)
+    );
+
+    encoder enc (
+        .clk_i(clk_i),
+        .rst_ni(rst_ni),
+    
+        .pim_mode_i(pim_mode_i),
+
+        .output_1_i(buf_out_8b_1),
+        .output_2_i(buf_out_8b_2),
+
+        .encoder_output_o(encoder_output)
+    );
+
+    shifter s (
+        .clk_i(clk_i),
+        .rst_ni(rst_ni),
+
+        .encoder_output_i(encoder_output),
+
+        .shift_counter_en_i(shift_counter_en), 
+
+        .shifter_output_o(shifter_output)
+    );
 
 
+    accum_buffer accum (
+        .clk_i(clk_i),
+        .rst_ni(rst_ni),
 
-endmodule 
+        .accum_buf_write_en_i(accum_buf_write_en),
+
+        .shifter_output_i(shifter_output),
+
+        .accum_buf_read_en_i(accum_buf_read_en),
+
+        .accum_buf_output_o(accum_buf_output)
+    );
+
+    always_comb begin
+        if (load_en_i) begin
+            mapping_group_output_o = accum_buf_output + $signed(zp_data);
+        end else begin
+            mapping_group_output_o = '0;
+        end
+    end
+
+
+endmodule

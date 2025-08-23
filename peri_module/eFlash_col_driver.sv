@@ -86,7 +86,7 @@ module eFlash_col_driver (
                     end
                 end
                 PIM_READ: begin    // Read mode
-                    if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
+                    if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
                         for (int unsigned i = 0; i < 256; i++) begin
                             if ((i - row_c) % 8 == 0) begin
                                 dumh[i] = 1'b1;
@@ -96,7 +96,7 @@ module eFlash_col_driver (
                         end
                         precb = '0;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd5) begin
+                    end else if (exec_cnt == 4'd6) begin
                         for (int unsigned i = 0; i < 256; i++) begin
                             if ((i - row_c) % 8 == 0) begin
                                 dumh[i] = 1'b1;
@@ -106,11 +106,11 @@ module eFlash_col_driver (
                         end
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd4 || exec_cnt == 4'd3) begin
+                    end else if (exec_cnt == 4'd5 || exec_cnt == 4'd4) begin
                         dumh = '0;
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd2 ||exec_cnt == 4'd1 || exec_cnt == 4'd0) begin
+                    end else if (exec_cnt == 4'd3 ||exec_cnt == 4'd2 || exec_cnt == 4'd1) begin
                         dumh = '0;
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = '0;
@@ -121,21 +121,21 @@ module eFlash_col_driver (
                     end
                 end
                 PIM_PARALLEL: begin    // Parallel mode
-                    if (exec_cnt == 4'd11 || exec_cnt == 4'd10 || exec_cnt == 4'd9) begin
+                    if (exec_cnt == 4'd12 || exec_cnt == 4'd11 || exec_cnt == 4'd10) begin
                         dumh = 256'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         precb = '0;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
+                    end else if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
                         for (int unsigned i = 0; i < 256; i++) begin
                             case (input_data_i[i])
                                 2'b00: begin
                                     dumh[i] = '0;
                                 end
                                 2'b01: begin
-                                    dumh[i] = (exec_cnt == 4'd8) ;
+                                    dumh[i] = (exec_cnt == 4'd9) ;
                                 end
                                 2'b10: begin
-                                    dumh[i] = (exec_cnt == 4'd8 || exec_cnt == 4'd7) ;
+                                    dumh[i] = (exec_cnt == 4'd9 || exec_cnt == 4'd8) ;
                                 end
                                 2'b11: begin
                                     dumh[i] = 1'b1;
@@ -147,7 +147,7 @@ module eFlash_col_driver (
                         end
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd5 || exec_cnt == 4'd4 || exec_cnt == 4'd3 || exec_cnt == 4'd2 || exec_cnt == 4'd1 || exec_cnt == 4'd0) begin
+                    end else if (exec_cnt == 4'd6 || exec_cnt == 4'd5 || exec_cnt == 4'd4 || exec_cnt == 4'd3 || exec_cnt == 4'd2 || exec_cnt == 4'd1) begin
                         dumh = '0;
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = '0;
@@ -158,7 +158,7 @@ module eFlash_col_driver (
                     end
                 end
                 PIM_RBR: begin    // Rbr mode
-                    if (exec_cnt == 4'd8 || exec_cnt == 4'd7 || exec_cnt == 4'd6) begin
+                    if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
                         for (int unsigned i = 0; i < 256; i++) begin
                             if ((i - row_c) % 8 == 0) begin
                                 dumh[i] = 1'b1;
@@ -168,7 +168,7 @@ module eFlash_col_driver (
                         end
                         precb = '0;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd5 || exec_cnt == 4'd4 || exec_cnt == 4'd3) begin
+                    end else if (exec_cnt == 4'd6 || exec_cnt == 4'd5 || exec_cnt == 4'd4) begin
                         dumh = '0;
                         for (int unsigned i = 0; i < 32; i++) begin
                             case (input_data_i[i])
@@ -176,14 +176,14 @@ module eFlash_col_driver (
                                     dumh[8 * i + row_c] = '0;
                                 end
                                 2'b01: begin
-                                    if (exec_cnt == 4'd5) begin
+                                    if (exec_cnt == 4'd6) begin
                                         dumh[8 * i + row_c] = 1'b1;
                                     end else begin
                                         dumh[8 * i + row_c] = '0;
                                     end
                                 end
                                 2'b10: begin
-                                    if (exec_cnt == 4'd5 || exec_cnt == 4'd4) begin
+                                    if (exec_cnt == 4'd6 || exec_cnt == 4'd5) begin
                                         dumh[8 * i + row_c] = 1'b1;
                                     end else begin
                                         dumh[8 * i + row_c] = '0;
@@ -199,7 +199,7 @@ module eFlash_col_driver (
                         end
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
-                    end else if (exec_cnt == 4'd2 || exec_cnt == 4'd1 || exec_cnt == 4'd0) begin
+                    end else if (exec_cnt == 4'd3 || exec_cnt == 4'd2 || exec_cnt == 4'd1) begin
                         dumh = '0;
                         precb = 128'hFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF;
                         disc = '0;

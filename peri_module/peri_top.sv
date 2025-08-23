@@ -51,10 +51,10 @@ module peri_top (
     logic buf_write_en_0, buf_write_en_1, buf_write_en_2;
 
     // Controller -> Output buffer
-    logic buf_read_en, shift_counter_en, zero_point_en, load_en;
+    logic buf_read_en, output_processing_done, zero_point_en, load_en;
     logic [31:0] zero_point;
-    logic [5:0] load_cnt;
-    logic [1:0] before_load_mode;
+    logic [4:0] load_cnt;
+    logic [2:0] before_load_mode;
 
     logic [31:0] out_buf_output;
 
@@ -77,24 +77,24 @@ module peri_top (
         .col_addr9_o(col_addr9),
 
         // input buffer
+        .in_buf_write_o(in_buf_write),
+        .in_buf_read_o(in_buf_read),
         .input_data_o(input_data_buf_in),
         .data_rx_cnt_o(data_rx_cnt),
 
-        .in_buf_write_o(in_buf_write),
-        .in_buf_read_o(in_buf_read),
-
         // output buffer
-        .out_buf_data_i(out_buf_output),
+        .before_load_mode_o(before_load_mode),
 
-        .buf_read_en_o(buf_read_en),
-        .shift_counter_en_o(shift_counter_en),
+        .zp_en_o(zero_point_en),
+        .zp_data_o(zero_point),
 
-        .zero_point_en_o(zero_point_en),
-        .zero_point_o(zero_point),
+        .pim_out_buf_r_en_o(buf_read_en),
+        .output_processing_done_o(output_processing_done),
 
         .load_en_o(load_en),
         .load_cnt_o(load_cnt),
-        .before_load_mode_o(before_load_mode)
+
+        .output_buffer_result_i(out_buf_output)
     );
 
 
@@ -163,30 +163,29 @@ module peri_top (
         .rst_ni(rst_ni),
 
     // eFlash output 128 * 8 bit
-        .output_i(eFlash_output_i),
+        .pim_output_i(eFlash_output_i),
 
-    // Buffer signal 
-        .buf_write_en_0_i(buf_write_en_0),
-        .buf_write_en_1_i(buf_write_en_1),
-        .buf_write_en_2_i(buf_write_en_2),
-        .buf_read_en_i(buf_read_en),
-
-        .shift_counter_en_i(shift_counter_en),
-    
         .pim_mode_i(pim_mode),
-
-    // zero point
-        .zero_point_en_i(zero_point_en),
-        .zero_point_i(zero_point),
-
-    // Load mode
-        .pim_en_i(pim_en),
-        .col_addr9_i(col_addr9),
-        .load_en_i(load_en),
-        .load_cnt_i(load_cnt),     // 0 ~ 31
         .before_load_mode_i(before_load_mode),
 
-        .out_buf_o(out_buf_output)
+    // Buffer signal 
+        .pim_out_buf_w_en_1_i(buf_write_en_1),
+        .pim_out_buf_w_en_2_i(buf_write_en_2),
+
+        .pim_out_buf_r_en_i(buf_read_en),
+
+        .output_processing_done_i(output_processing_done),
+
+        .read_mode_buf_w_en_i(buf_write_en_0),
+        .col_addr9_i(col_addr9),
+
+        .load_en_i(load_en),
+        .load_cnt_i(load_cnt), 
+
+        .zp_en_i(zero_point_en),
+        .zp_data_i(zero_point),
+
+        .output_buffer_o(out_buf_output)
     );
 
 
