@@ -74,7 +74,7 @@ module output_buffer_top (
    
     generate
         for (genvar i = 0; i < 32; i++) begin
-            mapping_group_top (
+            mapping_group_top mgt (
                     .clk_i(clk_i),
                     .rst_ni(rst_ni),
 

@@ -432,6 +432,8 @@ module peri_controller #(
                     end else begin
                         next_state = PIM_EXEC;
                     end
+                end else begin
+                    next_state = PIM_EXEC;
                 end
             end
             PIM_PROCESSING: begin
