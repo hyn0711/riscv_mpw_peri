@@ -87,9 +87,6 @@ module eFlash_row_driver (
 // --------------------------- input buffer ---------------------------
     logic [1:0]     mem [0:255];
 
-    // logic [31:0] mem_dump_0;
-    // assign mem_dump_0 = mem[0];
-
     // Write input data in the buffer
     always_ff @ (posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
@@ -200,39 +197,7 @@ module eFlash_row_driver (
             end
         end
     end
-
-    // always_ff @(posedge clk_i or negedge rst_ni) begin
-    //     if (!rst_ni) begin
-    //         for (int i = 0; i < 256; i++) begin
-    //             input_data_o[i] <= '0;
-    //         end
-    //     end else begin
-    //         if (in_buf_read_i) begin   
-    //             if (pim_mode == PIM_PARALLEL) begin
-    //                 for (int i = 0; i < 256; i++) begin
-    //                     input_data_o[i] <= mem[i];
-    //                 end
-    //             end else if (pim_mode == PIM_RBR) begin
-    //                 for (int i = 0; i < 32; i++) begin
-    //                     input_data_o[i] <= mem[i];
-    //                 end 
-    //                 for (int j = 32; j < 256; j++) begin
-    //                     input_data_o[j] <= '0;
-    //                 end
-    //             end else begin
-    //                 for (int i = 0; i < 256; i++) begin
-    //                     input_data_o[i] <= '0;
-    //                 end
-    //             end
-    //         end else begin
-    //             for (int i = 0; i < 256; i++) begin
-    //                 input_data_o[i] <= '0;
-    //             end
-    //         end   
-    //     end
-    // end     
-
-
+ 
 // --------------------------- eFlash signal ---------------------------
     always_comb begin
         mode = '0;

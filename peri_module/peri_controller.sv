@@ -451,8 +451,22 @@ module peri_controller #(
 
     logic pim_valid;
     assign pim_valid = (curr_state == IDLE);
+
+    // Pim data valid signal
     logic pim_data_valid;
-    assign pim_data_valid = 1'b1;
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            pim_data_valid <= '0;
+        end else begin
+            if ((pim_mode == PIM_READ || pim_mode == PIM_PARALLEL || pim_mode == PIM_RBR) && (counter == 4'd2)) begin
+                pim_data_valid <= 1'b1;
+            end else if (pim_mode == PIM_LOAD) begin
+                pim_data_valid <= '0;
+            end else begin
+                pim_data_valid <= pim_data_valid;
+            end
+        end
+    end
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
