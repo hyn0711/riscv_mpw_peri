@@ -29,6 +29,7 @@ module peri_controller #(
 
     // -> Output buffer
     output logic [2:0]          before_load_mode_o,
+    output logic                read_mode_buf_w_en_0,   // for read mode
 
     output logic                zp_en_o,
     output logic signed [31:0]  zp_data_o,
@@ -175,6 +176,13 @@ module peri_controller #(
                 end else begin
                     counter <= '0;
                 end
+
+                if (counter == '0 && processing_counter == '0) begin
+                    processing_counter <= 2'd2;
+                end else if (processing_counter != '0) begin
+                    processing_counter <= processing_counter - 1;
+                end
+
             end else if (pim_mode == PIM_RBR) begin
                 if (setup_finish) begin    
                     counter <= 4'd9;
@@ -268,10 +276,10 @@ module peri_controller #(
         case (curr_state)
             PIM_SETUP: begin
                 if (pim_mode == PIM_PARALLEL || pim_mode == PIM_RBR) begin
-                    if (address_i[31:16] == 12'h400) begin
+                    if (address_i[31:20] == 12'h400) begin
                         in_buf_write_o = 1'b1;
                         input_data_o= data_i;
-                        data_rx_cnt_o = address_i[15:12];
+                        data_rx_cnt_o = address_i[19:16];
                     end else begin
                         in_buf_write_o = '0;
                         input_data_o = '0;
@@ -351,15 +359,28 @@ module peri_controller #(
             end
             PIM_PROCESSING: begin
                 pim_mode_o = pim_mode;
+                col_addr9_o = col_addr;
                 if (processing_counter == 2'd2) begin
                     pim_out_buf_r_en_o = 1'b1;
                     output_processing_done_o = '0;
                 end else if (processing_counter == 2'd1) begin
-                    pim_out_buf_r_en_o = 1'b1;
-                    output_processing_done_o = 1'b1;
+                    if (pim_mode == PIM_PARALLEL || pim_mode == PIM_RBR) begin
+                        pim_out_buf_r_en_o = '0;
+                        output_processing_done_o = 1'b1;
+                        read_mode_buf_w_en_0 = '0;
+                    end else if (pim_mode == PIM_READ) begin
+                        pim_out_buf_r_en_o = '0;
+                        output_processing_done_o = '0;
+                        read_mode_buf_w_en_0 = 1'b1;
+                    end else begin
+                        pim_out_buf_r_en_o = '0;
+                        output_processing_done_o = '0;
+                        read_mode_buf_w_en_0 = '0;
+                    end
                 end else begin
                     pim_out_buf_r_en_o = '0;
                     output_processing_done_o = '0;
+                    read_mode_buf_w_en_0 = '0;
                 end
             end
             default: begin

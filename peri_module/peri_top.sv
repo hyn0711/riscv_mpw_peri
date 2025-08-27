@@ -58,6 +58,9 @@ module peri_top (
 
     logic [31:0] out_buf_output;
 
+    logic [1023:0] output_buffer_1, output_buffer_2;
+    logic read_mode_buf_w_en;
+
     peri_controller p_c (
         .clk_i(clk_i),
         .rst_ni(rst_ni),
@@ -84,6 +87,7 @@ module peri_top (
 
         // output buffer
         .before_load_mode_o(before_load_mode),
+        .read_mode_buf_w_en_0(read_mode_buf_w_en),
 
         .zp_en_o(zero_point_en),
         .zp_data_o(zero_point),
@@ -134,7 +138,7 @@ module peri_top (
         .QDAC_o(QDAC_o),
         .RSEL_o(RSEL_o),
 
-        .buf_write_en_0_o(buf_write_en_0),
+        //.buf_write_en_0_o(buf_write_en_0),
         .buf_write_en_1_o(buf_write_en_1),
         .buf_write_en_2_o(buf_write_en_2)
 );
@@ -158,25 +162,43 @@ module peri_top (
         .DISC_o(DISC_o)
     );
 
-    output_buffer_top o_b (
+    output_buffer o_b (
+        .clk_i(clk_i),
+        .rst_ni(rst_ni),
+
+        .pim_output_i(eFlash_output_i),
+
+    // signal
+        .buf_write_en_1_i(buf_write_en_1),
+        .buf_write_en_2_i(buf_write_en_2),
+
+        .buf_read_en_i(buf_read_en),
+
+        .output_1_o(output_buffer_1),
+        .output_2_o(output_buffer_2)
+    );
+
+    output_buffer_top o_b_y (
         .clk_i(clk_i),
         .rst_ni(rst_ni),
 
     // eFlash output 128 * 8 bit
-        .pim_output_i(eFlash_output_i),
+        .pim_output_1_i(output_buffer_1),
+        .pim_output_2_i(output_buffer_2),
+        //.pim_output_i(eFlash_output_i),
 
         .pim_mode_i(pim_mode),
         .before_load_mode_i(before_load_mode),
 
     // Buffer signal 
-        .pim_out_buf_w_en_1_i(buf_write_en_1),
-        .pim_out_buf_w_en_2_i(buf_write_en_2),
+        // .pim_out_buf_w_en_1_i(buf_write_en_1),
+        // .pim_out_buf_w_en_2_i(buf_write_en_2),
 
-        .pim_out_buf_r_en_i(buf_read_en),
+        // .pim_out_buf_r_en_i(buf_read_en),
 
         .output_processing_done_i(output_processing_done),
 
-        .read_mode_buf_w_en_i(buf_write_en_0),
+        .read_mode_buf_w_en_i(read_mode_buf_w_en),
         .col_addr9_i(col_addr9),
 
         .load_en_i(load_en),

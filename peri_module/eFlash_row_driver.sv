@@ -39,7 +39,7 @@ module eFlash_row_driver (
     output logic [1:0]          RSEL_o,
 
     // Output buffer 
-    output logic                buf_write_en_0_o,
+    //output logic                buf_write_en_0_o,
     output logic                buf_write_en_1_o,
     output logic                buf_write_en_2_o
 );
@@ -77,7 +77,7 @@ module eFlash_row_driver (
     logic [2:0] pim_mode;
     logic [3:0] exec_cnt;
 
-    logic buf_write_en_0, buf_write_en_1, buf_write_en_2;
+    logic buf_write_en_1, buf_write_en_2;
 
     assign pim_en = pim_en_i;
     assign pim_mode = pim_mode_i;
@@ -212,7 +212,7 @@ module eFlash_row_driver (
         qdac = 1'b1;
         rsel = '0;
 
-        buf_write_en_0 = '0;
+        //buf_write_en_0 = '0;
         buf_write_en_1 = '0;
         buf_write_en_2 = '0;
 
@@ -221,7 +221,7 @@ module eFlash_row_driver (
                 PIM_ERASE: begin        // Erase mode
                     mode = 2'b00;
 
-                    buf_write_en_0 = '0;
+                    //buf_write_en_0 = '0;
                     buf_write_en_1 = '0;
                     buf_write_en_2 = '0;
 
@@ -251,7 +251,7 @@ module eFlash_row_driver (
                 PIM_PROGRAM: begin      // Program mode
                     mode = 2'b01;
 
-                    buf_write_en_0 = '0;
+                    //buf_write_en_0 = '0;
                     buf_write_en_1 = '0;
                     buf_write_en_2 = '0;
 
@@ -293,7 +293,7 @@ module eFlash_row_driver (
                 PIM_READ: begin
                     mode = 2'b10;
 
-                    buf_write_en_1 = '0;
+                    //buf_write_en_1 = '0;
                     buf_write_en_2 = '0;
 
                     for (int unsigned i = 0; i < 128; i++) begin
@@ -308,9 +308,9 @@ module eFlash_row_driver (
                     rsel = 2'b01;
 
                     if (exec_cnt == 4'd1) begin
-                        buf_write_en_0 = 1'b1;
+                        buf_write_en_1 = 1'b1;
                     end else begin
-                        buf_write_en_0 = '0;
+                        buf_write_en_1 = '0;
                     end
 
                     if (exec_cnt == 4'd9 || exec_cnt == 4'd8 || exec_cnt == 4'd7) begin
@@ -429,7 +429,7 @@ module eFlash_row_driver (
                         end
                     end
                     rsel = 2'b10;
-                    buf_write_en_0 = '0;
+                    //buf_write_en_0 = '0;
 
                     if (exec_cnt == 4'd4) begin
                         buf_write_en_1 = 1'b1;
@@ -541,7 +541,7 @@ module eFlash_row_driver (
                         end
                     end
                     rsel = 2'b01;
-                    buf_write_en_0 = '0;
+                    //buf_write_en_0 = '0;
                     buf_write_en_2 = '0;
                     if (exec_cnt == 4'd1) begin
                         buf_write_en_1 = 1'b1;
@@ -633,7 +633,7 @@ module eFlash_row_driver (
                         adc_en1 = '0;
                         adc_en2 = '0;
                         qdac = 1'b1;
-                        buf_write_en_0 = '0;
+                        //buf_write_en_0 = '0;
                         buf_write_en_1 = '0;
                         buf_write_en_2 = '0;
                     end
@@ -654,7 +654,7 @@ module eFlash_row_driver (
                     qdac = 1'b1;
                     rsel = '0;
 
-                    buf_write_en_0 = '0;
+                    //buf_write_en_0 = '0;
                     buf_write_en_1 = '0;
                     buf_write_en_2 = '0;
                 end
@@ -692,7 +692,7 @@ module eFlash_row_driver (
             QDAC_o <= 1'b1;
             RSEL_o <= '0;
 
-            buf_write_en_0_o <= '0;
+            //buf_write_en_0_o <= '0;
             buf_write_en_1_o <= '0;
             buf_write_en_2_o <= '0;
         end else begin
@@ -708,7 +708,7 @@ module eFlash_row_driver (
             QDAC_o <= qdac;
             RSEL_o <= rsel;
 
-            buf_write_en_0_o <= buf_write_en_0;
+            //buf_write_en_0_o <= buf_write_en_0;
             buf_write_en_1_o <= buf_write_en_1;
             buf_write_en_2_o <= buf_write_en_2;
         end

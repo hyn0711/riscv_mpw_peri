@@ -2,15 +2,9 @@ module mapping_group_top (
     input logic                 clk_i,
     input logic                 rst_ni,
 
-    // buffer for pim output
-    input logic [31:0]          pim_output_i,
+    input logic [31:0]          pim_output_1_i,
+    input logic [31:0]          pim_output_2_i,
 
-    input logic                 pim_out_buf_w_en_1_i,
-    input logic                 pim_out_buf_w_en_2_i,
-
-    input logic                 pim_out_buf_r_en_i,
-
-    // signal for encoder
     input logic [2:0]           pim_mode_i,
 
     input logic                 output_processing_done_i,
@@ -24,8 +18,15 @@ module mapping_group_top (
     output logic [31:0]         mapping_group_output_o
 );
 
-    logic [7:0] buf_out_8b_1 [0:3];
-    logic [7:0] buf_out_8b_2 [0:3];
+    logic [7:0] pim_output_8b_1 [0:3];
+    logic [7:0] pim_output_8b_2 [0:3];
+
+    always_comb begin
+        for (int i = 0; i < 4; i++) begin
+            pim_output_8b_1[i] = pim_output_1_i[31 - 8 * i -: 8];
+            pim_output_8b_2[i] = pim_output_2_i[31 - 8 * i -: 8];
+        end
+    end
 
     logic [6:0] encoder_output [0:3];
 
@@ -36,6 +37,7 @@ module mapping_group_top (
 
     logic accum_buf_write_en;
     assign accum_buf_write_en = output_processing_done_i;
+
     logic accum_buf_read_en;
     assign accum_buf_read_en = load_en_i;
 
@@ -57,20 +59,6 @@ module mapping_group_top (
         end
     end
 
-    buffer_8b buf_8b (
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
-
-        .output_i(pim_output_i),       // Output from eFlash pim
-
-        .buf_write_en_1_i(pim_out_buf_w_en_1_i),
-        .buf_write_en_2_i(pim_out_buf_w_en_2_i),
-
-        .buf_read_en_i(pim_out_buf_r_en_i),
-
-        .output_1_o(buf_out_8b_1),
-        .output_2_o(buf_out_8b_2)
-    );
 
     encoder enc (
         .clk_i(clk_i),
@@ -78,8 +66,8 @@ module mapping_group_top (
     
         .pim_mode_i(pim_mode_i),
 
-        .output_1_i(buf_out_8b_1),
-        .output_2_i(buf_out_8b_2),
+        .output_1_i(pim_output_8b_1),
+        .output_2_i(pim_output_8b_2),
 
         .encoder_output_o(encoder_output)
     );
@@ -94,7 +82,6 @@ module mapping_group_top (
 
         .shifter_output_o(shifter_output)
     );
-
 
     accum_buffer accum (
         .clk_i(clk_i),
@@ -116,6 +103,5 @@ module mapping_group_top (
             mapping_group_output_o = '0;
         end
     end
-
 
 endmodule

@@ -2,16 +2,17 @@ module output_buffer_top (
     input logic                 clk_i,
     input logic                 rst_ni,
 
-    input logic [1023:0]        pim_output_i,
+    input logic [1023:0]        pim_output_1_i,
+    input logic [1023:0]        pim_output_2_i,
 
     input logic [2:0]           pim_mode_i,
     input logic [2:0]           before_load_mode_i,
 
     // Store the eFlash pim output when adc_en signal is on
-    input logic                 pim_out_buf_w_en_1_i, 
-    input logic                 pim_out_buf_w_en_2_i,
+    // input logic                 pim_out_buf_w_en_1_i, 
+    // input logic                 pim_out_buf_w_en_2_i,
 
-    input logic                 pim_out_buf_r_en_i,
+    // input logic                 pim_out_buf_r_en_i,
 
     input logic                 output_processing_done_i,
 
@@ -38,7 +39,8 @@ module output_buffer_top (
     logic read_load_en;
     logic parallel_rbr_load_en [0:31];
     
-    logic [31:0] mapping_group_in [0:31];
+    logic [31:0] mapping_group_in_1 [0:31];
+    logic [31:0] mapping_group_in_2 [0:31];
     logic [31:0] mapping_group_output [0:31];
 
     logic [31:0] read_mode_output;
@@ -68,7 +70,8 @@ module output_buffer_top (
 
     always_comb begin
         for (int i = 0; i < 32; i++) begin
-            mapping_group_in[i] = pim_output_i[1023 - 32 * i -: 32];
+            mapping_group_in_1[i] = pim_output_1_i[1023 - 32 * i -: 32];
+            mapping_group_in_2[i] = pim_output_2_i[1023 - 32 * i -: 32];
         end
     end
    
@@ -78,12 +81,8 @@ module output_buffer_top (
                     .clk_i(clk_i),
                     .rst_ni(rst_ni),
 
-                    .pim_output_i(mapping_group_in[i]),
-
-                    .pim_out_buf_w_en_1_i(pim_out_buf_w_en_1_i),
-                    .pim_out_buf_w_en_2_i(pim_out_buf_w_en_2_i),
-
-                    .pim_out_buf_r_en_i(pim_out_buf_r_en_i),
+                    .pim_output_1_i(mapping_group_in_1[i]),
+                    .pim_output_2_i(mapping_group_in_2[i]),
 
                     .pim_mode_i(pim_mode_i),
 
@@ -104,10 +103,10 @@ module output_buffer_top (
         .clk_i(clk_i),
         .rst_ni(rst_ni),
 
-        .pim_output_i(pim_output_i),  
+        .pim_output_i(pim_output_1_i),  
 
         .read_mode_buf_w_en_i(read_mode_buf_w_en_i),
-        .read_mode_buf_r_en_i(read_load_en),
+        .read_load_en_i(read_load_en),
 
         .col_addr9_i(col_addr9_i),
 
