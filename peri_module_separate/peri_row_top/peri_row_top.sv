@@ -1,8 +1,4 @@
-// Peri top 
-// not include output buffer
-
-
-module peri_top (
+module peri_row_top (
     input logic             clk_i,
     input logic             rst_ni,
 
@@ -12,8 +8,23 @@ module peri_top (
 
     output logic [31:0]     data_o,
 
-    // PIM
-    input logic [1023:0]    eFlash_output_i,
+    // Col driver
+    output logic            pim_en_o,
+    output logic [2:0]      pim_mode_o,
+    output logic [3:0]      exec_cnt_o,
+
+    output logic [6:0]      row_addr7_o,
+    output logic [8:0]      col_addr9_o,
+
+    output logic [1:0]      input_data_to_driver_o [0:255],
+
+    // Output buffer
+    output logic            buf_read_en_o,
+    output logic            buf_write_en_1_o,
+    output logic            buf_write_en_2_o,
+
+    input logic [1023:0]    output_buffer_1_i,
+    input logic [1023:0]    output_buffer_2_i,
 
     // Row wise signal
     output logic [1:0]      MODE_o,
@@ -27,39 +38,39 @@ module peri_top (
     output logic            ADC_EN1_o,
     output logic            ADC_EN2_o,
     output logic            QDAC_o,
-    output logic [1:0]      RSEL_o,
-
-    // Col wise signal
-    output logic [255:0]    DUMH_o,
-    output logic [127:0]    PRECB_o,
-    output logic [127:0]    DISC_o
+    output logic [1:0]      RSEL_o
 );
 
     // Peri controller signal 
     logic pim_en;
+    assign pim_en_o = pim_en;
     logic [2:0] pim_mode;
+    assign pim_mode_o = pim_mode;
     logic [3:0] exec_cnt;
+    assign exec_cnt_o = exec_cnt;
     logic [6:0] row_addr7;
+    assign row_addr7_o = row_addr7;
     logic [8:0] col_addr9;
+    assign col_addr9_o = col_addr9;
 
-    logic [31:0] input_data_buf_in;
-    logic [1:0] input_data_to_driver [0:255];
-    logic [3:0] data_rx_cnt;
+    // For input data to buffer
     logic in_buf_write, in_buf_read;
+    logic [31:0] input_data_buf_in;
+    logic [3:0] data_rx_cnt;
 
-    // Row driver -> Output buffer
-    logic buf_write_en_0, buf_write_en_1, buf_write_en_2;
-
-    // Controller -> Output buffer
-    logic buf_read_en, output_processing_done, zero_point_en, load_en;
-    logic [31:0] zero_point;
-    logic [4:0] load_cnt;
+    // For output processing
     logic [2:0] before_load_mode;
-
+    logic read_mode_buf_w_en;
+    logic zero_point_en;
+    logic [31:0] zero_point;
+    logic output_processing_done;
+    logic load_en;
+    logic [4:0] load_cnt;
     logic [31:0] out_buf_output;
 
-    logic [1023:0] output_buffer_1, output_buffer_2;
-    logic read_mode_buf_w_en;
+
+
+
 
     peri_controller p_c (
         .clk_i(clk_i),
@@ -92,7 +103,7 @@ module peri_top (
         .zp_en_o(zero_point_en),
         .zp_data_o(zero_point),
 
-        .pim_out_buf_r_en_o(buf_read_en),
+        .pim_out_buf_r_en_o(buf_read_en_o),
         .output_processing_done_o(output_processing_done),
 
         .load_en_o(load_en),
@@ -122,7 +133,7 @@ module peri_top (
         .in_buf_write_i(in_buf_write),
         .in_buf_read_i(in_buf_read),
 
-        .input_data_o(input_data_to_driver),
+        .input_data_o(input_data_to_driver_o),
 
         //eFlash signal 
         .MODE_o(MODE_o),
@@ -139,43 +150,8 @@ module peri_top (
         .RSEL_o(RSEL_o),
 
         //.buf_write_en_0_o(buf_write_en_0),
-        .buf_write_en_1_o(buf_write_en_1),
-        .buf_write_en_2_o(buf_write_en_2)
-);
-
-    eFlash_col_driver c_d (
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
-
-        .input_data_i(input_data_to_driver),
-
-    // eFlash signal control
-        .pim_en_i(pim_en),
-        .pim_mode_i(pim_mode),
-        .exec_cnt_i(exec_cnt),
-
-        .row_addr7_i(row_addr7),
-        .col_addr9_i(col_addr9),
-
-        .DUMH_o(DUMH_o),
-        .PRECB_o(PRECB_o),
-        .DISC_o(DISC_o)
-    );
-
-    output_buffer o_b (
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
-
-        .pim_output_i(eFlash_output_i),
-
-    // signal
-        .buf_write_en_1_i(buf_write_en_1),
-        .buf_write_en_2_i(buf_write_en_2),
-
-        .buf_read_en_i(buf_read_en),
-
-        .output_1_o(output_buffer_1),
-        .output_2_o(output_buffer_2)
+        .buf_write_en_1_o(buf_write_en_1_o),
+        .buf_write_en_2_o(buf_write_en_2_o)
     );
 
     output_buffer_top o_b_t (
@@ -183,8 +159,8 @@ module peri_top (
         .rst_ni(rst_ni),
 
     // eFlash output 128 * 8 bit
-        .pim_output_1_i(output_buffer_1),
-        .pim_output_2_i(output_buffer_2),
+        .pim_output_1_i(output_buffer_1_i),
+        .pim_output_2_i(output_buffer_2_i),
         //.pim_output_i(eFlash_output_i),
 
         .pim_mode_i(pim_mode),
@@ -211,4 +187,8 @@ module peri_top (
     );
 
 
-endmodule
+
+
+
+
+endmodule 

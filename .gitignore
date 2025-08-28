@@ -1,0 +1,9 @@
+/layout/*
+/tb_verdi/*
+/test_output/*
+/testbench/*
+*.ipynb
+*.zip
+*.vcd
+*.out
+Makefile

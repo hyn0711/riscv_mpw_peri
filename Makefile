@@ -13,7 +13,8 @@ SRC = ./testbench/tb_peri_top.sv \
 	  ./peri_module/output_buffer/eFlash_to_encoder.sv \
 	  ./peri_module/output_buffer/mapping_group_shift.sv \
 	  ./peri_module/output_buffer/mapping_group_top.sv \
-	  ./peri_module/output_buffer/output_buffer_top.sv
+	  ./peri_module/output_buffer/output_buffer_top.sv \
+	  ./peri_module/output_buffer/output_buffer_read_mode.sv 
 
 # output binary
 OUT = peri.out

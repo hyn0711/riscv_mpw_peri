@@ -122,6 +122,8 @@ module tb_peri_top;
             @(negedge clk_i);
             address_i = {16'h4000, row[6:0], col[8:0]};
             data_i = '0;
+            repeat(10) @(negedge clk_i); random_eFlash_output();
+            @(negedge clk_i);
         end
         PIM_ZP: begin
             @(negedge clk_i);
@@ -199,9 +201,26 @@ module tb_peri_top;
         send_data(PIM_ZP, 0, 0, 0, 0, 10);
         init_signals();
 
+        repeat(3) check_status();
+        init_signals();
+
+        send_mode(PIM_READ);
+        send_data(PIM_READ, 2, 6, 0, 0, 0);
+
+        repeat(20) check_status();
+        init_signals();
+
+        send_mode(PIM_LOAD);
+        init_signals();
+        @(negedge clk_i);
+        @(negedge clk_i);
+        @(negedge clk_i);
+
+
+
         // Parallrl mode 4 times
         // Fisrt 
-        repeat(3) check_status();
+        repeat(10) check_status();
         init_signals();
        
         send_mode(PIM_PARALLEL);
