@@ -13,7 +13,9 @@ module peri_top (
     output logic [31:0]     data_o,
 
     // PIM
-    input logic [1023:0]    eFlash_output_i,
+    input logic [1023:0]    eFlash_output_1_i,
+    input logic [1023:0]    eFlash_output_2_i,
+
 
     // Row wise signal
     output logic [1:0]      MODE_o,
@@ -166,7 +168,8 @@ module peri_top (
         .clk_i(clk_i),
         .rst_ni(rst_ni),
 
-        .pim_output_i(eFlash_output_i),
+        .pim_output_1_i(eFlash_output_1_i),
+        .pim_output_2_i(eFlash_output_2_i),
 
     // signal
         .buf_write_en_1_i(buf_write_en_1),

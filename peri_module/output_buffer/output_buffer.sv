@@ -2,7 +2,8 @@ module output_buffer (
     input logic                 clk_i,
     input logic                 rst_ni,
 
-    input logic [1023:0]        pim_output_i,
+    input logic [1023:0]        pim_output_1_i,
+    input logic [1023:0]        pim_output_2_i,
 
     // signal
     input logic                 buf_write_en_1_i,
@@ -24,9 +25,9 @@ module output_buffer (
             buf_2 <= '0;
         end else begin
             if(buf_write_en_1_i) begin
-                buf_1 <= pim_output_i;
+                buf_1 <= pim_output_1_i;
             end else if (buf_write_en_2_i) begin
-                buf_2 <= pim_output_i;
+                buf_2 <= pim_output_2_i;
             end else begin
                 buf_1 <= buf_1;
                 buf_2 <= buf_2;
