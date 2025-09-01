@@ -20,33 +20,43 @@ module encoder (
 
 
     //--|Demux|------------------------------------------------------
+    // always_comb begin
+    //     for (int i = 0; i < 4; i++) begin
+    //         parallel_output_in_1[i] = '0;
+    //         parallel_output_in_2[i] = '0;
+    //         rbr_output_in[i] = '0;
+    //     end
+    //     if (pim_mode_i == PIM_PARALLEL) begin
+    //         for (int i = 0; i < 4; i++) begin
+    //             parallel_output_in_1[i] = output_1_i[i];
+    //             parallel_output_in_2[i] = output_2_i[i];
+    //             rbr_output_in[i] = '0;
+    //         end
+    //     end else if (pim_mode_i == PIM_RBR) begin
+    //         for (int i = 0; i < 4; i++) begin
+    //             parallel_output_in_1[i] = '0;
+    //             parallel_output_in_2[i] = '0;
+    //             rbr_output_in[i] = output_1_i[i];
+    //         end
+    //     end else begin
+    //         for (int i = 0; i < 4; i++) begin
+    //             parallel_output_in_1[i] = '0;
+    //             parallel_output_in_2[i] = '0;
+    //             rbr_output_in[i] = '0;
+    //         end
+    //     end
+    // end
+
+
+    //--|Erase the Demux|--------------------------------------------
     always_comb begin
         for (int i = 0; i < 4; i++) begin
-            parallel_output_in_1[i] = '0;
-            parallel_output_in_2[i] = '0;
-            rbr_output_in[i] = '0;
-        end
-        if (pim_mode_i == PIM_PARALLEL) begin
-            for (int i = 0; i < 4; i++) begin
-                parallel_output_in_1[i] = output_1_i[i];
-                parallel_output_in_2[i] = output_2_i[i];
-                rbr_output_in[i] = '0;
-            end
-        end else if (pim_mode_i == PIM_RBR) begin
-            for (int i = 0; i < 4; i++) begin
-                parallel_output_in_1[i] = '0;
-                parallel_output_in_2[i] = '0;
-                rbr_output_in[i] = output_1_i[i];
-            end
-        end else begin
-            for (int i = 0; i < 4; i++) begin
-                parallel_output_in_1[i] = '0;
-                parallel_output_in_2[i] = '0;
-                rbr_output_in[i] = '0;
-            end
+            parallel_output_in_1[i] = output_1_i[i];
+            parallel_output_in_2[i] = output_2_i[i];
+            rbr_output_in[i] = output_1_i[i];
         end
     end
-
+            
 
     //--|RBR mode|---------------------------------------------------
     logic [3:0] rbr_enc_output[0:3];
